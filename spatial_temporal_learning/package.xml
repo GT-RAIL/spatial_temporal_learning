@@ -13,7 +13,9 @@
   <url type="repository">https://github.com/WPI-RAIL/spatial_temporal_learning</url>
  
   <buildtool_depend>catkin</buildtool_depend>
-  
+
+  <run_depend>worldlib</run_depend>
+
   <export>
     <metapackage />
   </export>
