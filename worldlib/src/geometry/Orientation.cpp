@@ -15,6 +15,15 @@
 using namespace std;
 using namespace rail::spatial_temporal_learning::worldlib::geometry;
 
+Orientation::Orientation(const double theta) {
+  // use TF2 to help us out
+  tf2::Quaternion quaternion(tf2::Vector3(1, 0, 0), theta);
+  x_ = quaternion.getX();
+  y_ = quaternion.getY();
+  z_ = quaternion.getZ();
+  w_ = quaternion.getW();
+}
+
 Orientation::Orientation(const double x, const double y, const double z, const double w)
 {
   // set orientation data

@@ -66,7 +66,7 @@ public:
 
 private:
   /*! Remote connection host. */
-  std::string host_;
+  const std::string host_;
   /*! Remote connection port. */
   uint16_t port_;
 };

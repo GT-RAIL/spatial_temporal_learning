@@ -19,10 +19,14 @@
 // Remote
 #include "remote/Client.h"
 #include "remote/SpatialWorldClient.h"
+#include "remote/SpatialWorldObservation.h"
+#include "remote/SqlClient.h"
+#include "remote/SqlEntity.h"
 
 // World
 #include "world/Item.h"
 #include "world/Object.h"
+#include "world/Observation.h"
 #include "world/PlacementSurface.h"
 #include "world/PointOfInterest.h"
 #include "world/Room.h"

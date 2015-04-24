@@ -141,7 +141,7 @@ protected:
 
 private:
   /*! Database connection information. */
-  std::string user_, password_, database_;
+  const std::string user_, password_, database_;
   /*! Connection flag */
   bool connected_;
   /*! The main database connection client. */

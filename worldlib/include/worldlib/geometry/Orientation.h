@@ -39,14 +39,23 @@ public:
   /*!
    * \brief Create a new Orientation.
    *
+   * Creates a new Orientation with the theta value about the Z axis.
+   *
+   * \param theta The theta value.
+   */
+  Orientation(const double theta = 0);
+
+  /*!
+   * \brief Create a new Orientation.
+   *
    * Creates a new Orientation with the given x, y, z, and w values.
    *
-   * \param x The x value (default of 0).
-   * \param y The y value (default of 0).
-   * \param z The z value (default of 0).
-   * \param w The w value (default of 1).
+   * \param x The x value.
+   * \param y The y value.
+   * \param z The z value.
+   * \param w The w value.
    */
-  Orientation(const double x = 0, const double y = 0, const double z = 0, const double w = 1);
+  Orientation(const double x, const double y, const double z, const double w);
 
   /*!
    * \brief Create a new Orientation.

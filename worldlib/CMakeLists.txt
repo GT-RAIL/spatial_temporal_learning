@@ -4,7 +4,7 @@ project(worldlib)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED
+find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   tf2
@@ -35,14 +35,20 @@ include_directories(include
 
 # Source files for the library
 set(WORLDLIB_SOURCE
+  # Geometry source files
   src/geometry/Orientation.cpp
   src/geometry/Pose.cpp
   src/geometry/Position.cpp
+  # Remote source files
   src/remote/Client.cpp
   src/remote/SpatialWorldClient.cpp
+  src/remote/SpatialWorldObservation.cpp
   src/remote/SqlClient.cpp
+  src/remote/SqlEntity.cpp
+  # World source files
   src/world/Item.cpp
   src/world/Object.cpp
+  src/world/Observation.cpp
   src/world/PlacementSurface.cpp
   src/world/PointOfInterest.cpp
   src/world/Room.cpp
