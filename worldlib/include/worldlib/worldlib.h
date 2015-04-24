@@ -16,9 +16,9 @@
 #include "geometry/Pose.h"
 #include "geometry/Position.h"
 
-// SQL
-#include "sql/Client.h"
-#include "sql/SpatialWorldClient.h"
+// Remote
+#include "remote/Client.h"
+#include "remote/SpatialWorldClient.h"
 
 // World
 #include "world/Item.h"

@@ -9,7 +9,7 @@ int main(int argc, char **argv)
   // initialize ROS and the node
   ros::init(argc, argv, "test");
 
-  sql::SpatialWorldClient c("localhost", sql::Client::DEFAULT_PORT, "testros", "YKetQVGz5GVwrShc", "rms");
+  remote::SpatialWorldClient c("localhost", remote::Client::DEFAULT_PORT, "testros", "YKetQVGz5GVwrShc", "rms");
   if (c.connect())
   {
     cout << "connection!" << endl;

@@ -1,22 +1,21 @@
 /*!
- * \file Client.h
+ * \file SqlSqlClient.h
  * \brief The main MySQL client connection.
  *
  * The worldlib SQL client can communicate with a MySQL database.
  *
  * \author Russell Toris, WPI - rctoris@wpi.edu
- * \date April 22, 2015
+ * \date April 24, 2015
  */
 
-#ifndef SPATIAL_TEMPORAL_LEARNING_WORLDLIB_SQL_CLIENT_H_
-#define SPATIAL_TEMPORAL_LEARNING_WORLDLIB_SQL_CLIENT_H_
+#ifndef SPATIAL_TEMPORAL_LEARNING_WORLDLIB_REMOTE_SQL_CLIENT_H_
+#define SPATIAL_TEMPORAL_LEARNING_WORLDLIB_REMOTE_SQL_CLIENT_H_
+
+// worldlib
+#include "Client.h"
 
 // MySQL
 #include <mysql/mysql.h>
-
-// C++ Standard Library
-#include <stdint.h>
-#include <string>
 
 namespace rail
 {
@@ -24,34 +23,34 @@ namespace spatial_temporal_learning
 {
 namespace worldlib
 {
-namespace sql
+namespace remote
 {
 
 /*!
- * \class Client
+ * \class SqlClient
  * \brief The main MySQL client connection.
  *
  * The worldlib SQL client can communicate with a MySQL database.
  */
-class Client
+class SqlClient : public Client
 {
 public:
   /*! The default MySQL port. */
   static const unsigned int DEFAULT_PORT = 3306;
 
   /*!
-   * \brief Create a new Client.
+   * \brief SqlClient a new SqlClient.
    *
-   * Creates a new Client by copying the values from the given Client. A new connection is made if one exists.
+   * SqlSqlClients a new SqlClient by copying the values from the given SqlClient. A new connection is made if one exists.
    *
-   * \param client The Client to copy.
+   * \param client The SqlClient to copy.
    */
-  Client(const Client &client);
+  SqlClient(const SqlClient &client);
 
   /*!
-   * \brief Create a new Client.
+   * \brief Create a new SqlClient.
    *
-   * Creates a new Client with the given connection information. A connection is not made by default.
+   * Creates a new SqlClient with the given connection information. A connection is not made by default.
    *
    * \param host The host of the database.
    * \param port The host port of the database.
@@ -59,38 +58,20 @@ public:
    * \param password The password for the user of the database.
    * \param database The database name.
    */
-  Client(const std::string &host, const uint16_t port, const std::string &user, const std::string &password,
+  SqlClient(const std::string &host, const uint16_t port, const std::string &user, const std::string &password,
       const std::string &database);
 
   /*!
-   * \brief Cleans up a Client.
+   * \brief Cleans up a SqlClient.
    *
-   * Cleans up any connections used by the Client.
+   * Cleans up any connections used by the SqlClient.
    */
-  virtual ~Client();
-
-  /*!
-   * \brief Port value accessor.
-   *
-   * Get the port value of this Client.
-   *
-   * \return The port value.
-   */
-  uint16_t getPort() const;
-
-  /*!
-   * \brief Host value accessor.
-   *
-   * Get the host value of this Client.
-   *
-   * \return The host value.
-   */
-  const std::string &getHost() const;
+  virtual ~SqlClient();
 
   /*!
    * \brief User value accessor.
    *
-   * Get the user value of this Client.
+   * Get the user value of this SqlClient.
    *
    * \return The user value.
    */
@@ -99,7 +80,7 @@ public:
   /*!
    * \brief Password value accessor.
    *
-   * Get the password value of this Client.
+   * Get the password value of this SqlClient.
    *
    * \return The password value.
    */
@@ -108,7 +89,7 @@ public:
   /*!
    * \brief Database value accessor.
    *
-   * Get the database value of this Client.
+   * Get the database value of this SqlClient.
    *
    * \return The database value.
    */
@@ -160,9 +141,7 @@ protected:
 
 private:
   /*! Database connection information. */
-  std::string host_, user_, password_, database_;
-  /*! Database port information. */
-  uint16_t port_;
+  std::string user_, password_, database_;
   /*! Connection flag */
   bool connected_;
   /*! The main database connection client. */

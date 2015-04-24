@@ -38,8 +38,9 @@ set(WORLDLIB_SOURCE
   src/geometry/Orientation.cpp
   src/geometry/Pose.cpp
   src/geometry/Position.cpp
-  src/sql/Client.cpp
-  src/sql/SpatialWorldClient.cpp
+  src/remote/Client.cpp
+  src/remote/SpatialWorldClient.cpp
+  src/remote/SqlClient.cpp
   src/world/Item.cpp
   src/world/Object.cpp
   src/world/PlacementSurface.cpp

@@ -9,28 +9,28 @@
  */
 
 // worldlib
-#include "worldlib/sql/SpatialWorldClient.h"
+#include "worldlib/remote/SpatialWorldClient.h"
 
 // ROS
 #include <ros/ros.h>
 
 using namespace std;
 using namespace rail::spatial_temporal_learning::worldlib::geometry;
-using namespace rail::spatial_temporal_learning::worldlib::sql;
+using namespace rail::spatial_temporal_learning::worldlib::remote;
 using namespace rail::spatial_temporal_learning::worldlib::world;
 
-SpatialWorldClient::SpatialWorldClient(const SpatialWorldClient &client) : Client(client)
+SpatialWorldClient::SpatialWorldClient(const SpatialWorldClient &client) : SqlClient(client)
 {
 }
 
 SpatialWorldClient::SpatialWorldClient(const string &host, const uint16_t port, const string &user,
-    const string &password, const string &database) : Client(host, port, user, password, database)
+    const string &password, const string &database) : SqlClient(host, port, user, password, database)
 {
 }
 
 bool SpatialWorldClient::connect()
 {
-  bool success = Client::connect();
+  bool success = SqlClient::connect();
   // attempt to create the tables
   this->createTable();
   return success;

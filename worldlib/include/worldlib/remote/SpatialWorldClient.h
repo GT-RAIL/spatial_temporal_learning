@@ -8,11 +8,11 @@
  * \date April 22, 2015
  */
 
-#ifndef SPATIAL_TEMPORAL_LEARNING_WORLDLIB_SQL_SPATIAL_WORLD_CLIENT_H_
-#define SPATIAL_TEMPORAL_LEARNING_WORLDLIB_SQL_SPATIAL_WORLD_CLIENT_H_
+#ifndef SPATIAL_TEMPORAL_LEARNING_WORLDLIB_REMOTE_SPATIAL_WORLD_CLIENT_H_
+#define SPATIAL_TEMPORAL_LEARNING_WORLDLIB_REMOTE_SPATIAL_WORLD_CLIENT_H_
 
 // worldlib
-#include "Client.h"
+#include "SqlClient.h"
 #include "../geometry/Pose.h"
 #include "../world/Item.h"
 #include "../world/Surface.h"
@@ -23,7 +23,7 @@ namespace spatial_temporal_learning
 {
 namespace worldlib
 {
-namespace sql
+namespace remote
 {
 
 /*!
@@ -32,7 +32,7 @@ namespace sql
  *
  * The spatial world SQL client can communicate with a MySQL database containing the spatial world database.
  */
-class SpatialWorldClient : public Client
+class SpatialWorldClient : public SqlClient
 {
 public:
   /*!

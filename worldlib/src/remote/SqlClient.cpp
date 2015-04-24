@@ -1,26 +1,26 @@
 /*!
- * \file Client.cpp
+ * \file SqlClient.cpp
  * \brief The main MySQL client connection.
  *
  * The worldlib SQL client can communicate with a MySQL database.
  *
  * \author Russell Toris, WPI - rctoris@wpi.edu
- * \date April 22, 2015
+ * \date April 24, 2015
  */
 
 // worldlib
-#include "worldlib/sql/Client.h"
+#include "worldlib/remote/SqlClient.h"
 
 // ROS
 #include <ros/ros.h>
 
 using namespace std;
-using namespace rail::spatial_temporal_learning::worldlib::sql;
+using namespace rail::spatial_temporal_learning::worldlib::remote;
 
-Client::Client(const Client &client)
-    : host_(client.getHost()), user_(client.getUser()), password_(client.getPassword()), database_(client.getDatabase())
+SqlClient::SqlClient(const SqlClient &client)
+    : Client(client.getHost(), client.getPort()),
+      user_(client.getUser()), password_(client.getPassword()), database_(client.getDatabase())
 {
-  port_ = client.getPort();
   connection_ = NULL;
 
   // check if a connection was made
@@ -30,59 +30,48 @@ Client::Client(const Client &client)
   }
 }
 
-Client::Client(const string &host, const uint16_t port, const string &user, const string &password,
-    const string &database) : host_(host), user_(user), password_(password), database_(database)
+SqlClient::SqlClient(const string &host, const uint16_t port, const string &user, const string &password,
+    const string &database) : Client(host, port), user_(user), password_(password), database_(database)
 {
-  port_ = port;
   connection_ = NULL;
   connected_ = false;
 }
 
-Client::~Client()
+SqlClient::~SqlClient()
 {
   // check for an existing connection
   this->disconnect();
 }
 
-uint16_t Client::getPort() const
-{
-  return port_;
-}
-
-const string &Client::getHost() const
-{
-  return host_;
-}
-
-const string &Client::getUser() const
+const string &SqlClient::getUser() const
 {
   return user_;
 }
 
-const string &Client::getPassword() const
+const string &SqlClient::getPassword() const
 {
   return password_;
 }
 
-const string &Client::getDatabase() const
+const string &SqlClient::getDatabase() const
 {
   return database_;
 }
 
-bool Client::connected() const
+bool SqlClient::connected() const
 {
   return connection_ != NULL && connected_;
 }
 
-bool Client::connect()
+bool SqlClient::connect()
 {
   // check for an existing connection
   this->disconnect();
 
   // setup the client connection
   connection_ = mysql_init(NULL);
-  connected_ = mysql_real_connect(connection_, host_.c_str(), user_.c_str(), password_.c_str(), database_.c_str(),
-                                  port_, NULL, 0);
+  connected_ = mysql_real_connect(connection_, this->getHost().c_str(), user_.c_str(), password_.c_str(),
+                                  database_.c_str(), this->getPort(), NULL, 0);
   if (!connected_)
   {
     this->printSqlError();
@@ -91,7 +80,7 @@ bool Client::connect()
   return this->connected();
 }
 
-void Client::disconnect()
+void SqlClient::disconnect()
 {
   // check for an existing connection
   if (connection_ != NULL)
@@ -105,7 +94,7 @@ void Client::disconnect()
   }
 }
 
-MYSQL_RES *Client::query(string query) const
+MYSQL_RES *SqlClient::query(string query) const
 {
   if (this->connected())
   {
@@ -126,7 +115,7 @@ MYSQL_RES *Client::query(string query) const
   return NULL;
 }
 
-void Client::printSqlError() const
+void SqlClient::printSqlError() const
 {
   ROS_ERROR("MySQL Error: %s", mysql_error(connection_));
 }
