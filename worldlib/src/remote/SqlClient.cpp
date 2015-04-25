@@ -94,7 +94,7 @@ void SqlClient::disconnect()
   }
 }
 
-MYSQL_RES *SqlClient::query(string query) const
+MYSQL_RES *SqlClient::query(const string &query) const
 {
   if (this->connected())
   {

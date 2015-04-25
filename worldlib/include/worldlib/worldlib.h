@@ -16,8 +16,13 @@
 #include "geometry/Pose.h"
 #include "geometry/Position.h"
 
+// Model
+#include "model/PlacementModel.h"
+
 // Remote
 #include "remote/Client.h"
+#include "remote/HttpClient.h"
+#include "remote/InteractiveWorldModelClient.h"
 #include "remote/SpatialWorldClient.h"
 #include "remote/SpatialWorldObservation.h"
 #include "remote/SqlClient.h"
@@ -27,6 +32,7 @@
 #include "world/Item.h"
 #include "world/Object.h"
 #include "world/Observation.h"
+#include "world/Placement.h"
 #include "world/PlacementSurface.h"
 #include "world/PointOfInterest.h"
 #include "world/Room.h"

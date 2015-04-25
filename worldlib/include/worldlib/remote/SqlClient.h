@@ -39,9 +39,9 @@ public:
   static const unsigned int DEFAULT_PORT = 3306;
 
   /*!
-   * \brief SqlClient a new SqlClient.
+   * \brief Create a new SqlClient.
    *
-   * SqlSqlClients a new SqlClient by copying the values from the given SqlClient. A new connection is made if one exists.
+   * Creates a new SqlClient by copying the values from the given SqlClient. A new connection is made if one exists.
    *
    * \param client The SqlClient to copy.
    */
@@ -130,7 +130,7 @@ protected:
    * \param query The SQL query to run.
    * \return The SQL result or NULL if an error occurred.
    */
-  MYSQL_RES *query(std::string query) const;
+  MYSQL_RES *query(const std::string &query) const;
 
   /*!
    * \brief Print the latest SQL error to ROS_ERROR.

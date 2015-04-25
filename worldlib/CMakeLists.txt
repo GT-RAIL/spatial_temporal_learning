@@ -9,10 +9,20 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2
 )
+find_package(Boost REQUIRED COMPONENTS
+  random
+)
 
 ###################################################
 ## Declare things to be passed to other projects ##
 ###################################################
+
+## External libraries
+set(WORLDLIB_EXTERN_LIBS
+  curl
+  jsoncpp
+  mysqlclient
+)
 
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
@@ -20,8 +30,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp tf2
-  DEPENDS mysqlclient
+  CATKIN_DEPENDS geometry_msgs roscpp tf2
+  DEPENDS Boost ${WORLDLIB_EXTERN_LIBS}
 )
 
 ###########
@@ -30,6 +40,7 @@ catkin_package(
 
 ## Specify additional locations of header files
 include_directories(include
+  ${boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -39,8 +50,12 @@ set(WORLDLIB_SOURCE
   src/geometry/Orientation.cpp
   src/geometry/Pose.cpp
   src/geometry/Position.cpp
+  # Model source files
+  src/model/PlacementModel.cpp
   # Remote source files
   src/remote/Client.cpp
+  src/remote/HttpClient.cpp
+  src/remote/InteractiveWorldModelClient.cpp
   src/remote/SpatialWorldClient.cpp
   src/remote/SpatialWorldObservation.cpp
   src/remote/SqlClient.cpp
@@ -49,6 +64,7 @@ set(WORLDLIB_SOURCE
   src/world/Item.cpp
   src/world/Object.cpp
   src/world/Observation.cpp
+  src/world/Placement.cpp
   src/world/PlacementSurface.cpp
   src/world/PointOfInterest.cpp
   src/world/Room.cpp
@@ -66,8 +82,9 @@ add_library(${PROJECT_NAME} ${WORLDLIB_SOURCE})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
+  ${boost_LIBRARIES}
   ${catkin_LIBRARIES}
-  mysqlclient
+  ${WORLDLIB_EXTERN_LIBS}
 )
 
 # REMOVE THIS

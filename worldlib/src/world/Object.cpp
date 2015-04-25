@@ -25,7 +25,7 @@ Object::Object(const string &name, const string &frame_id, const geometry::Pose 
 {
   width_ = width;
   depth_ = depth;
-  height_ = depth;
+  height_ = height;
 }
 
 const string &Object::getName() const
