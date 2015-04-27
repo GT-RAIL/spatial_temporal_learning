@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(persistent_object_search)
+project(world_item_search)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -28,12 +28,13 @@ include_directories(include
 )
 
 ## Declare a cpp executable
-add_executable(offline_object_search
-  nodes/offline_object_search.cpp
+add_executable(offline_item_search
+  nodes/offline_item_search.cpp
+  src/OfflineItemSearcher.cpp
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(offline_object_search
+target_link_libraries(offline_item_search
   ${catkin_LIBRARIES}
 )
 
@@ -42,6 +43,6 @@ target_link_libraries(offline_object_search
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS offline_object_search
+install(TARGETS offline_item_search
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

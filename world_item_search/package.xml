@@ -1,12 +1,12 @@
 <package>
-  <name>persistent_object_search</name>
+  <name>world_item_search</name>
   <version>0.0.0</version>
   <description>World Object Search via Persistence Models</description>
 
   <author email="rctoris@wpi.edu">Russell Toris</author>
   <maintainer email="rctoris@wpi.edu">Russell Toris</maintainer>
   
-  <url type="website">http://ros.org/wiki/persistent_object_search</url>
+  <url type="website">http://ros.org/wiki/world_item_search</url>
   <url type="bugtracker">https://github.com/WPI-RAIL/spatial_temporal_learning/issues</url>
   <url type="repository">https://github.com/WPI-RAIL/spatial_temporal_learning</url>
 

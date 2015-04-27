@@ -57,6 +57,7 @@ set(WORLDLIB_SOURCE
   src/remote/Client.cpp
   src/remote/HttpClient.cpp
   src/remote/InteractiveWorldModelClient.cpp
+  src/remote/Node.cpp
   src/remote/SpatialWorldClient.cpp
   src/remote/SpatialWorldObservation.cpp
   src/remote/SqlClient.cpp
@@ -81,15 +82,6 @@ target_link_libraries(${PROJECT_NAME}
   ${boost_LIBRARIES}
   ${catkin_LIBRARIES}
   ${WORLDLIB_EXTERN_LIBS}
-)
-
-# REMOVE THIS
-add_executable(test_node
-  src/test.cpp
-)
-target_link_libraries(test_node
-  ${PROJECT_NAME}
-  ${catkin_LIBRARIES}
 )
 
 #############

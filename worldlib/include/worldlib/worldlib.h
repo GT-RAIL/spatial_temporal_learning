@@ -24,6 +24,7 @@
 #include "remote/Client.h"
 #include "remote/HttpClient.h"
 #include "remote/InteractiveWorldModelClient.h"
+#include "remote/Node.h"
 #include "remote/SpatialWorldClient.h"
 #include "remote/SpatialWorldObservation.h"
 #include "remote/SqlClient.h"
