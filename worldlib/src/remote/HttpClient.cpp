@@ -52,24 +52,24 @@ void HttpClient::init()
   curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1L);
   // set up the read into the buffer
   curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, curlWriteFunction);
-  curl_easy_setopt(curl_, CURLOPT_WRITEDATA, &buffer_);
 }
 
-const string &HttpClient::get(const std::string &url)
+string HttpClient::get(const std::string &url) const
 {
   // create the URL
   string full_url = base_ + url;
   curl_easy_setopt(curl_, CURLOPT_URL, full_url.c_str());
 
-  // clear the old buffer
-  buffer_.clear();
+  // create a buffer
+  string buffer;
+  curl_easy_setopt(curl_, CURLOPT_WRITEDATA, &buffer);
 
   // perform the request and check for errors
   CURLcode result = curl_easy_perform(curl_);
   if (result != CURLE_OK)
   {
     ROS_ERROR("HTTP Error: %s", curl_easy_strerror(result));
-    buffer_.clear();
+    buffer.clear();
   } else
   {
     // check if we had a valid response
@@ -78,11 +78,11 @@ const string &HttpClient::get(const std::string &url)
     if (code != 200)
     {
       ROS_ERROR("HTTP Error: %s returned Error Code %li.", full_url.c_str(), code);
-      buffer_.clear();
+      buffer.clear();
     }
   }
 
-  return buffer_;
+  return buffer;
 }
 
 static size_t rail::spatial_temporal_learning::worldlib::remote::curlWriteFunction(const void *contents,

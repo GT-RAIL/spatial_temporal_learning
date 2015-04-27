@@ -72,15 +72,15 @@ protected:
    * request fails, an empty string is returned.
    *
    * \param url The URL (minus the host information) to make the request to.
-   * \return A reference to the result -- Note that this reference is only valid until a new call to get is made.
+   * \return The resulting contents of the HTTP request or the empty string if an error occured.
    */
-  const std::string &get(const std::string &url);
+  std::string get(const std::string &url) const;
 
 private:
   /*! The main HTTP connection. */
   CURL *curl_;
-  /*! The main response buffer and base URL. */
-  std::string buffer_, base_;
+  /*! The base URL. */
+  std::string base_;
 
   /*!
    * \brief Initialize the cURL client.

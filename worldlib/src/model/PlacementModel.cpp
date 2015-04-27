@@ -23,3 +23,59 @@ PlacementModel::PlacementModel(const Placement &placement, const double decision
   sigma_y_ = sigma_y;
   sigma_theta_ = sigma_theta;
 }
+
+const Placement &PlacementModel::getPlacement() const
+{
+  return placement_;
+}
+
+Placement &PlacementModel::getPlacement()
+{
+  return placement_;
+}
+
+void PlacementModel::setPlacement(const Placement &placement)
+{
+  placement_ = placement;
+}
+
+double PlacementModel::getDecisionValue()
+{
+  return decision_value_;
+}
+
+void PlacementModel::setDecisionValue(const double decision_value)
+{
+
+  decision_value_ = decision_value;
+}
+
+double PlacementModel::getSigmaX()
+{
+  return sigma_x_;
+}
+
+void PlacementModel::setSigmaX(const double sigma_x)
+{
+  sigma_x_ = sigma_x;
+}
+
+double PlacementModel::getSigmaY()
+{
+  return sigma_y_;
+}
+
+void PlacementModel::setSigmaY(const double sigma_y)
+{
+  sigma_y_ = sigma_y;
+}
+
+double PlacementModel::getSigmaTheta()
+{
+  return sigma_theta_;
+}
+
+void PlacementModel::setSigmaTheta(const double sigma_theta)
+{
+  sigma_theta_ = sigma_theta;
+}

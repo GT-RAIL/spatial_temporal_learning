@@ -34,8 +34,11 @@ InteractiveWorldModelClient::InteractiveWorldModelClient(const string &host, con
 {
 }
 
-void InteractiveWorldModelClient::getModel(const uint32_t task_id)
+TaskModel InteractiveWorldModelClient::getTaskModel(const uint32_t task_id) const
 {
+  // the model to return
+  TaskModel task_model(task_id);
+
   // build the URL request
   stringstream ss;
   ss << "iwmodels/view/" << task_id;
@@ -71,9 +74,6 @@ void InteractiveWorldModelClient::getModel(const uint32_t task_id)
       const double sigma_y = json_model["sigma_y"].asDouble();
       const double sigma_theta = json_model["sigma_theta"].asDouble();
 
-      // there is no reference frame for the reference object in the interactive world (they are indexed by names)
-      const Object object(json_model["reference_frame_id"].asString());
-
       // parse the placement
       const Json::Value &json_placement = json_model["placement"];
       const Json::Value &json_position = json_placement["position"];
@@ -91,18 +91,25 @@ void InteractiveWorldModelClient::getModel(const uint32_t task_id)
       // there is no reference frame for the item in the interactive world
       const Item item(item_name, "", placement_pose, item_width, item_depth);
 
+      // there is no reference frame for the reference object in the interactive world (they are indexed by names)
+      const Object object(json_placement["reference_frame_id"].asString());
+
       // parse the surface it was placed on
       const Json::Value &json_surface = json_placement["surface"];
-      const string &surface_name = json_placement["name"].asString();
+      const string &surface_name = json_surface["name"].asString();
       // sizes are only in two dimensions in the interactive world
-      const double surface_width = json_placement["width"].asDouble();
-      const double surface_depth = json_placement["height"].asDouble();
+      const double surface_width = json_surface["width"].asDouble();
+      const double surface_depth = json_surface["height"].asDouble();
       // there is no reference frame for the item in the interactive world (they are indexed by names)
       const Surface surface(surface_name, "", Pose(), surface_width, surface_depth);
 
       // build the final model
       Placement placement(item, object, surface);
-      PlacementModel model(placement, decision_value, sigma_x, sigma_y, sigma_theta);
+      PlacementModel placement_model(placement, decision_value, sigma_x, sigma_y, sigma_theta);
+
+      task_model.addPlacementModel(placement_model);
     }
   }
+
+  return task_model;
 }

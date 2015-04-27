@@ -54,6 +54,6 @@ int main(int argc, char **argv)
 //  c.disconnect();
 
   remote::InteractiveWorldModelClient client;
-  client.getModel(1);
-  client.getModel(remote::InteractiveWorldModelClient::TASK_ID_MAGAZINE_PLACEMENT);
+  client.getTaskModel(1);
+  client.getTaskModel(remote::InteractiveWorldModelClient::TASK_ID_MAGAZINE_PLACEMENT);
 }

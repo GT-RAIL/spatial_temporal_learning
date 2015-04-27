@@ -52,6 +52,7 @@ set(WORLDLIB_SOURCE
   src/geometry/Position.cpp
   # Model source files
   src/model/PlacementModel.cpp
+  src/model/TaskModel.cpp
   # Remote source files
   src/remote/Client.cpp
   src/remote/HttpClient.cpp
@@ -74,11 +75,6 @@ set(WORLDLIB_SOURCE
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME} ${WORLDLIB_SOURCE})
-
-## Add message build dependencies (needed for source build)
-#add_dependencies(${PROJECT_NAME}
-#  rail_pick_and_place_msgs_gencpp
-#)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}

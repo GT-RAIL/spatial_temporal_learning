@@ -46,7 +46,104 @@ public:
   PlacementModel(const world::Placement &placement, const double decision_value, const double sigma_x,
       const double sigma_y, const double sigma_theta);
 
-  // TODO geters and setters
+  /*!
+   * \brief Placement value accessor (immutable).
+   *
+   * Get the Placement value of this PlacementModel.
+   *
+   * \return The Placement value of this PlacementModel.
+   */
+  const world::Placement &getPlacement() const;
+
+  /*!
+   * \brief Placement value accessor.
+   *
+   * Get the Placement value of this PlacementModel.
+   *
+   * \return The Placement value of this PlacementModel.
+   */
+  world::Placement &getPlacement();
+
+  /*!
+   * \brief Placement value mutator.
+   *
+   * Set the Placement value of this PlacementModel.
+   *
+   * \param placement The new Placement value of this PlacementModel.
+   */
+  void setPlacement(const world::Placement &placement);
+
+  /*!
+   * \brief Decision value accessor.
+   *
+   * Get the decision value of this PlacementModel.
+   *
+   * \return The decision value of this PlacementModel.
+   */
+  double getDecisionValue();
+
+  /*!
+   * \brief Decision value mutator.
+   *
+   * Set the decision value of this PlacementModel.
+   *
+   * \param decision_value The new decision value of this PlacementModel.
+   */
+  void setDecisionValue(const double decision_value);
+
+  /*!
+   * \brief Sigma-x value accessor.
+   *
+   * Get the standard deviation along the x-axis value of this PlacementModel.
+   *
+   * \return The sigma-x value of this PlacementModel.
+   */
+  double getSigmaX();
+
+  /*!
+   * \brief Sigma-x value mutator.
+   *
+   * Set the standard deviation along the x-axis value of this PlacementModel.
+   *
+   * \param sigma_x The new sigma-x value of this PlacementModel.
+   */
+  void setSigmaX(const double sigma_x);
+
+  /*!
+   * \brief Sigma-y value accessor.
+   *
+   * Get the standard deviation along the y-axis value of this PlacementModel.
+   *
+   * \return The sigma-y value of this PlacementModel.
+   */
+  double getSigmaY();
+
+  /*!
+   * \brief Sigma-y value mutator.
+   *
+   * Set the standard deviation along the y-axis value of this PlacementModel.
+   *
+   * \param sigma_y The new sigma-y value of this PlacementModel.
+   */
+  void setSigmaY(const double sigma_y);
+
+  /*!
+   * \brief Sigma-theta value accessor.
+   *
+   * Get the standard deviation in the theta value of this PlacementModel.
+   *
+   * \return The sigma-theta value of this PlacementModel.
+   */
+  double getSigmaTheta();
+
+  /*!
+   * \brief Sigma-theta value mutator.
+   *
+   * Set the standard deviation in the theta value of this PlacementModel.
+   *
+   * \param sigma_theta The new sigma-theta value of this PlacementModel.
+   */
+  void setSigmaTheta(const double sigma_theta);
 
 private:
   /*! The Placement value for the model. */

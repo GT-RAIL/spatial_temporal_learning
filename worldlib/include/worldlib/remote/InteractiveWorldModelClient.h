@@ -13,6 +13,7 @@
 
 // worldlib
 #include "HttpClient.h"
+#include "../model/TaskModel.h"
 
 namespace rail
 {
@@ -60,7 +61,15 @@ public:
    */
   InteractiveWorldModelClient(const std::string &host = "robotsfor.me", const uint16_t port = HttpClient::DEFAULT_PORT);
 
-  void getModel(const uint32_t task_id);
+  /*!
+   * \brief Load a task model from the remote server.
+   *
+   * Attempts to load a task model from the interactive world server with the given task ID.
+   *
+   * \param task_id The task ID to load.
+   * \return The resulting task model or an empty model if there was an error loading the model.
+   */
+  model::TaskModel getTaskModel(const uint32_t task_id) const;
 };
 
 }

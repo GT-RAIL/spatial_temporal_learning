@@ -18,6 +18,7 @@
 
 // Model
 #include "model/PlacementModel.h"
+#include "model/TaskModel.h"
 
 // Remote
 #include "remote/Client.h"
