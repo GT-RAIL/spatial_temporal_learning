@@ -25,12 +25,29 @@ const vector<PlacementSurface> &Surface::getPlacementSurfaces() const
   return placement_surfaces_;
 }
 
+vector<PlacementSurface> &Surface::getPlacementSurfaces()
+{
+  return placement_surfaces_;
+}
+
 size_t Surface::getNumPlacementSurfaces() const
 {
   return placement_surfaces_.size();
 }
 
 const PlacementSurface &Surface::getPlacementSurface(const size_t index) const
+{
+  // check the index value first
+  if (index < placement_surfaces_.size())
+  {
+    return placement_surfaces_[index];
+  } else
+  {
+    throw out_of_range("Surface::getPlacementSurface : Placement surface index does not exist.");
+  }
+}
+
+PlacementSurface &Surface::getPlacementSurface(const size_t index)
 {
   // check the index value first
   if (index < placement_surfaces_.size())
@@ -87,7 +104,44 @@ const PlacementSurface &Surface::findPlacementSurface(const string &name) const
   throw out_of_range("Surface::findPlacementSurface : Placement surface name does not exist.");
 }
 
+PlacementSurface &Surface::findPlacementSurface(const string &name)
+{
+  // check each surface
+  for (size_t i = 0; i < placement_surfaces_.size(); i++)
+  {
+    // perform a check
+    if (placement_surfaces_[i].checkName(name))
+    {
+      return placement_surfaces_[i];
+    }
+  }
+  // no match found
+  throw out_of_range("Surface::findPlacementSurface : Placement surface name does not exist.");
+}
+
 const PlacementSurface &Surface::findClosestPlacementSurface(const Position &position) const
+{
+  if (placement_surfaces_.empty())
+  {
+    throw out_of_range("Surface::findClosestPlacementSurface : No placement surfaces exist.");
+  } else
+  {
+    return placement_surfaces_[this->findClosestPlacementSurfaceHelper(position)];
+  }
+}
+
+PlacementSurface &Surface::findClosestPlacementSurface(const Position &position)
+{
+  if (placement_surfaces_.empty())
+  {
+    throw out_of_range("Surface::findClosestPlacementSurface : No placement surfaces exist.");
+  } else
+  {
+    return placement_surfaces_[this->findClosestPlacementSurfaceHelper(position)];
+  }
+}
+
+size_t Surface::findClosestPlacementSurfaceHelper(const Position &position) const
 {
   if (placement_surfaces_.empty())
   {
@@ -108,11 +162,16 @@ const PlacementSurface &Surface::findClosestPlacementSurface(const Position &pos
       }
     }
 
-    return placement_surfaces_[best_index];
+    return best_index;
   }
 }
 
 const vector<PointOfInterest> &Surface::getPointsOfInterest() const
+{
+  return pois_;
+}
+
+vector<PointOfInterest> &Surface::getPointsOfInterest()
 {
   return pois_;
 }
@@ -123,6 +182,18 @@ size_t Surface::getNumPointsOfInterest() const
 }
 
 const PointOfInterest &Surface::getPointOfInterest(const size_t index) const
+{
+  // check the index value first
+  if (index < pois_.size())
+  {
+    return pois_[index];
+  } else
+  {
+    throw out_of_range("Surface::getPointOfInterest : Point of interest index does not exist.");
+  }
+}
+
+PointOfInterest &Surface::getPointOfInterest(const size_t index)
 {
   // check the index value first
   if (index < pois_.size())
@@ -165,6 +236,22 @@ bool Surface::pointOfInterestExists(const string &name) const
 }
 
 const PointOfInterest &Surface::findPointOfInterest(const string &name) const
+{
+  // check each surface
+  for (size_t i = 0; i < pois_.size(); i++)
+  {
+    // perform a check
+    if (pois_[i].checkName(name))
+    {
+      return pois_[i];
+    }
+  }
+  // no match found
+  throw out_of_range("Surface::findPointOfInterest : Point of interest name does not exist.");
+}
+
+
+PointOfInterest &Surface::findPointOfInterest(const string &name)
 {
   // check each surface
   for (size_t i = 0; i < pois_.size(); i++)

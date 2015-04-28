@@ -14,6 +14,7 @@
 // worldlib
 #include "HttpClient.h"
 #include "../model/TaskModel.h"
+#include "../world/Item.h"
 
 namespace rail
 {
@@ -64,12 +65,38 @@ public:
   /*!
    * \brief Load a task model from the remote server.
    *
-   * Attempts to load a task model from the interactive world server with the given task ID.
+   * Attempts to load a task model from the interactive world server with the given task ID and place the information
+   * in the given task model.
    *
    * \param task_id The task ID to load.
-   * \return The resulting task model or an empty model if there was an error loading the model.
+   * \param task_model The TaskModel to fill.
+   * \return True if no errors occurred while loading the model.
    */
-  model::TaskModel getTaskModel(const uint32_t task_id) const;
+  bool getTaskModel(const uint32_t task_id, model::TaskModel &task_model) const;
+
+  /*!
+   * \brief Load the list of items for a given task from the remote server.
+   *
+   * Attempts to load the list of items for a given task from the interactive world server with the given task ID and
+   * store the information in the given vector.
+   *
+   * \param task_id The task ID to load the item list for.
+   * \param items The vector to fill with the unique items.
+   * \return True if no errors occurred while loading the model.
+   */
+  bool getTaskItems(const uint32_t task_id, std::vector<world::Item> &items) const;
+
+  /*!
+   * \brief Load the list of surfaces for a given task from the remote server.
+   *
+   * Attempts to load the list of surfaces for a given task from the interactive world server with the given task ID and
+   * store the information in the given vector.
+   *
+   * \param task_id The task ID to load the surface list for.
+   * \param surfaces The vector to fill with the unique surfaces.
+   * \return True if no errors occurred while loading the model.
+   */
+  bool getTaskSurfaces(const uint32_t task_id, std::vector<world::Surface> &surfaces) const;
 };
 
 }

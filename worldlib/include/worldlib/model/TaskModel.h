@@ -93,6 +93,15 @@ public:
   const std::vector<PlacementModel> &getPlacementModels() const;
 
   /*!
+   * \brief Placement models value accessor (immutable).
+   *
+   * Get the placement models of this TaskModel.
+   *
+   * \return The placement models.
+   */
+  std::vector<PlacementModel> &getPlacementModels();
+
+  /*!
    * \brief Placement models size accessor.
    *
    * Get the number of placement models of this TaskModel.
@@ -100,6 +109,17 @@ public:
    * \return The number of placement models of this TaskModel.
    */
   size_t getNumPlacementModels() const;
+
+  /*!
+   * \brief PlacementModel value accessor (immutable).
+   *
+   * Get the PlacementModel of this TaskModel at the given index.
+   *
+   * \param i The index of the PlacementModel to get.
+   * \return The PlacementModel at the given index.
+   * \throws std::out_of_range Thrown if the PlacementModel at the given index does not exist.
+   */
+  const PlacementModel &getPlacementModel(const size_t index) const;
 
   /*!
    * \brief PlacementModel value accessor.
@@ -110,7 +130,7 @@ public:
    * \return The PlacementModel at the given index.
    * \throws std::out_of_range Thrown if the PlacementModel at the given index does not exist.
    */
-  const PlacementModel &getPlacementModel(const size_t index) const;
+  PlacementModel &getPlacementModel(const size_t index);
 
   /*!
    * \brief PlacementModel adder.
@@ -130,6 +150,26 @@ public:
    * \throws std::out_of_range Thrown if the PlacementModel at the given index does not exist.
    */
   void removePlacementModel(const size_t index);
+
+  /*!
+   * \brief Get a unique list of the items in the task.
+   *
+   * Get a unique list of the items in the task. All poses are set to 0 since they are not placed items, simply a
+   * list of the items for the task.
+   *
+   * \param items The vector to fill with the unique items.
+   */
+  void getUniqueItems(std::vector<world::Item> &items) const;
+
+  /*!
+   * \brief Get a unique list of the surfaces in the task.
+   *
+   * Get a unique list of the surfaces in the task. All poses are set to 0 since they are not placed surfaces, simply a
+   * list of the surfaces for the task.
+   *
+   * \param surfaces The vector to fill with the unique surfaces.
+   */
+  void getUniqueSurfaces(std::vector<world::Surface> &surfaces) const;
 
 private:
   /*! The ID of the task. */

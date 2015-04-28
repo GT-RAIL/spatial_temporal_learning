@@ -17,6 +17,7 @@ using namespace rail::spatial_temporal_learning::worldlib::remote;
 
 Node::Node() : private_node_("~")
 {
+  okay_ = true;
 }
 
 InteractiveWorldModelClient *Node::createInteractiveWorldModelClient(const bool verbose) const
@@ -45,7 +46,7 @@ SpatialWorldClient *Node::createSpatialWorldClient(const bool verbose) const
 {
   // set connection defaults
   int port = SpatialWorldClient::DEFAULT_PORT;
-  string host("127.0.0.1");
+  string host("localhost");
   string user("ros");
   string password("");
   string database("rms");
@@ -69,4 +70,9 @@ SpatialWorldClient *Node::createSpatialWorldClient(const bool verbose) const
   }
 
   return client;
+}
+
+bool Node::okay() const
+{
+  return okay_;
 }

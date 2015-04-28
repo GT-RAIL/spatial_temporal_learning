@@ -52,13 +52,22 @@ public:
       const double width = 0, const double depth = 0, const double height = 0);
 
   /*!
-   * \brief Surfaces value accessor.
+   * \brief Surfaces value accessor (immutable).
    *
    * Get the surfaces of this Room.
    *
    * \return The surfaces.
    */
   const std::vector<Surface> &getSurfaces() const;
+
+  /*!
+   * \brief Surfaces value accessor.
+   *
+   * Get the surfaces of this Room.
+   *
+   * \return The surfaces.
+   */
+  std::vector<Surface> &getSurfaces();
 
   /*!
    * \brief Surfaces size accessor.
@@ -70,7 +79,7 @@ public:
   size_t getNumSurfaces() const;
 
   /*!
-   * \brief Surface value accessor.
+   * \brief Surface value accessor (immutable).
    *
    * Get the Surface of this Room at the given index.
    *
@@ -79,6 +88,17 @@ public:
    * \throws std::out_of_range Thrown if the Surface at the given index does not exist.
    */
   const Surface &getSurface(const size_t index) const;
+
+  /*!
+   * \brief Surface value accessor.
+   *
+   * Get the Surface of this Room at the given index.
+   *
+   * \param i The index of the Surface to get.
+   * \return The Surface at the given index.
+   * \throws std::out_of_range Thrown if the Surface at the given index does not exist.
+   */
+  Surface &getSurface(const size_t index);
 
   /*!
    * \brief Surface adder.
@@ -110,7 +130,7 @@ public:
   bool surfaceExists(const std::string &name) const;
 
   /*!
-   * \brief Surface finder.
+   * \brief Surface finder (immutable).
    *
    * Find a Surface with the given name. This will also check the aliases. Case is not important. If multiple
    * Surface exist with the given name, the first Surface is returned.
@@ -119,6 +139,17 @@ public:
    * \throws std::out_of_range Thrown if no Surface with the given name exists.
    */
   const Surface &findSurface(const std::string &name) const;
+
+  /*!
+   * \brief Surface finder.
+   *
+   * Find a Surface with the given name. This will also check the aliases. Case is not important. If multiple
+   * Surface exist with the given name, the first Surface is returned.
+   *
+   * \param name The name or alias of the Surface to find.
+   * \throws std::out_of_range Thrown if no Surface with the given name exists.
+   */
+  Surface &findSurface(const std::string &name);
 
 private:
   /*! List of surfaces. */

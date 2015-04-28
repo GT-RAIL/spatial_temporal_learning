@@ -44,6 +44,15 @@ public:
    */
   Node();
 
+  /*!
+   * \brief A check for a valid Node.
+   *
+   * This function will return true if the appropriate connections were created successfully during initialization.
+   *
+   * \return True if the appropriate connections were created successfully during initialization.
+   */
+  bool okay() const;
+
 protected:
   /*!
    * \brief Create a new InteractiveWorldModelClient.
@@ -67,6 +76,8 @@ protected:
 
   /*! The public and private ROS node handles. */
   ros::NodeHandle node_, private_node_;
+  /*! The okay check flag. */
+  bool okay_;
 };
 
 }

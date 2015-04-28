@@ -24,12 +24,29 @@ const vector<Surface> &Room::getSurfaces() const
   return surfaces_;
 }
 
+vector<Surface> &Room::getSurfaces()
+{
+  return surfaces_;
+}
+
 size_t Room::getNumSurfaces() const
 {
   return surfaces_.size();
 }
 
 const Surface &Room::getSurface(const size_t index) const
+{
+  // check the index value first
+  if (index < surfaces_.size())
+  {
+    return surfaces_[index];
+  } else
+  {
+    throw out_of_range("Room::getSurface : Surface index does not exist.");
+  }
+}
+
+Surface &Room::getSurface(const size_t index)
 {
   // check the index value first
   if (index < surfaces_.size())
@@ -72,6 +89,21 @@ bool Room::surfaceExists(const string &name) const
 }
 
 const Surface &Room::findSurface(const string &name) const
+{
+  // check each surface
+  for (size_t i = 0; i < surfaces_.size(); i++)
+  {
+    // perform a check
+    if (surfaces_[i].checkName(name))
+    {
+      return surfaces_[i];
+    }
+  }
+  // no match found
+  throw out_of_range("Room::findSurface : Surface name does not exist.");
+}
+
+Surface &Room::findSurface(const string &name)
 {
   // check each surface
   for (size_t i = 0; i < surfaces_.size(); i++)

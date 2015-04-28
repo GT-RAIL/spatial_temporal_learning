@@ -51,13 +51,22 @@ public:
       const double width = 0, const double depth = 0, const double height = 0);
 
   /*!
-   * \brief Placement surfaces value accessor.
+   * \brief Placement surfaces value accessor (immutable).
    *
    * Get the placement surfaces of this Surface.
    *
    * \return The placement surfaces.
    */
   const std::vector<PlacementSurface> &getPlacementSurfaces() const;
+
+  /*!
+   * \brief Placement surfaces value accessor.
+   *
+   * Get the placement surfaces of this Surface.
+   *
+   * \return The placement surfaces.
+   */
+  std::vector<PlacementSurface> &getPlacementSurfaces();
 
   /*!
    * \brief Placement surfaces size accessor.
@@ -69,7 +78,7 @@ public:
   size_t getNumPlacementSurfaces() const;
 
   /*!
-   * \brief PlacementSurface value accessor.
+   * \brief PlacementSurface value accessor (immutable).
    *
    * Get the PlacementSurface of this Surface at the given index.
    *
@@ -78,6 +87,17 @@ public:
    * \throws std::out_of_range Thrown if the PlacementSurface at the given index does not exist.
    */
   const PlacementSurface &getPlacementSurface(const size_t index) const;
+
+  /*!
+   * \brief PlacementSurface value accessor.
+   *
+   * Get the PlacementSurface of this Surface at the given index.
+   *
+   * \param i The index of the PlacementSurface to get.
+   * \return The PlacementSurface at the given index.
+   * \throws std::out_of_range Thrown if the PlacementSurface at the given index does not exist.
+   */
+  PlacementSurface &getPlacementSurface(const size_t index);
 
   /*!
    * \brief PlacementSurface adder.
@@ -110,7 +130,7 @@ public:
   bool placementSurfaceExists(const std::string &name) const;
 
   /*!
-   * \brief PlacementSurface finder.
+   * \brief PlacementSurface finder (immutable).
    *
    * Find a PlacementSurface with the given name. This will also check the aliases. Case is not important. If multiple
    * placement surfaces exist with the given name, the first placement surface is returned.
@@ -121,14 +141,44 @@ public:
   const PlacementSurface &findPlacementSurface(const std::string &name) const;
 
   /*!
-   * \brief Closest PlacementSurface finder.
+   * \brief PlacementSurface finder.
    *
-   * Find the closest PlacementSurface to the given pose. If no placement surfaces exist, an exception is thrown.
+   * Find a PlacementSurface with the given name. This will also check the aliases. Case is not important. If multiple
+   * placement surfaces exist with the given name, the first placement surface is returned.
+   *
+   * \param name The name or alias of the PlacementSurface to find.
+   * \throws std::out_of_range Thrown if no PlacementSurface with the given name exists.
+   */
+  PlacementSurface &findPlacementSurface(const std::string &name);
+
+  /*!
+   * \brief Closest PlacementSurface finder (immutable).
+   *
+   * Find the closest PlacementSurface to the given Position. If no placement surfaces exist, an exception is thrown.
    *
    * \param position The position (in reference to the surface's frame) to find the closest PlacementSurface to.
    * \throws std::out_of_range Thrown if no placement surfaces exist.
    */
   const PlacementSurface &findClosestPlacementSurface(const geometry::Position &position) const;
+
+  /*!
+   * \brief Closest PlacementSurface finder.
+   *
+   * Find the closest PlacementSurface to the given Position. If no placement surfaces exist, an exception is thrown.
+   *
+   * \param position The position (in reference to the surface's frame) to find the closest PlacementSurface to.
+   * \throws std::out_of_range Thrown if no placement surfaces exist.
+   */
+  PlacementSurface &findClosestPlacementSurface(const geometry::Position &position);
+
+  /*!
+   * \brief Points of interest value accessor (immutable).
+   *
+   * Get the points of interest of this Surface.
+   *
+   * \return The points of interest.
+   */
+  const std::vector<PointOfInterest> &getPointsOfInterest() const;
 
   /*!
    * \brief Points of interest value accessor.
@@ -137,7 +187,7 @@ public:
    *
    * \return The points of interest.
    */
-  const std::vector<PointOfInterest> &getPointsOfInterest() const;
+  std::vector<PointOfInterest> &getPointsOfInterest();
 
   /*!
    * \brief Points of interest size accessor.
@@ -149,7 +199,7 @@ public:
   size_t getNumPointsOfInterest() const;
 
   /*!
-   * \brief Points of interest value accessor.
+   * \brief Points of interest value accessor (immutable).
    *
    * Get the PointOfInterest of this Surface at the given index.
    *
@@ -158,6 +208,17 @@ public:
    * \throws std::out_of_range Thrown if the PointOfInterest at the given index does not exist.
    */
   const PointOfInterest &getPointOfInterest(const size_t index) const;
+
+  /*!
+   * \brief Points of interest value accessor.
+   *
+   * Get the PointOfInterest of this Surface at the given index.
+   *
+   * \param i The index of the PointOfInterest to get.
+   * \return The PointOfInterest at the given index.
+   * \throws std::out_of_range Thrown if the PointOfInterest at the given index does not exist.
+   */
+  PointOfInterest &getPointOfInterest(const size_t index);
 
   /*!
    * \brief PointOfInterest adder.
@@ -190,7 +251,7 @@ public:
   bool pointOfInterestExists(const std::string &name) const;
 
   /*!
-   * \brief PointOfInterest finder.
+   * \brief PointOfInterest finder (immutable).
    *
    * Find a PointOfInterest with the given name. This will also check the aliases. Case is not important. If multiple
    * points of interest exist with the given name, the first PointOfInterest is returned.
@@ -200,7 +261,28 @@ public:
    */
   const PointOfInterest &findPointOfInterest(const std::string &name) const;
 
+  /*!
+   * \brief PointOfInterest finder.
+   *
+   * Find a PointOfInterest with the given name. This will also check the aliases. Case is not important. If multiple
+   * points of interest exist with the given name, the first PointOfInterest is returned.
+   *
+   * \param name The name or alias of the PointOfInterest to find.
+   * \throws std::out_of_range Thrown if no PointOfInterest with the given name exists.
+   */
+  PointOfInterest &findPointOfInterest(const std::string &name);
+
 private:
+  /*!
+   * \brief Closest PlacementSurface finder.
+   *
+   * Find the closest PlacementSurface to the given Position. If no placement surfaces exist, an exception is thrown.
+   *
+   * \param position The position (in reference to the surface's frame) to find the closest PlacementSurface to.
+   * \throws std::out_of_range Thrown if no placement surfaces exist.
+   */
+  size_t findClosestPlacementSurfaceHelper(const geometry::Position &position) const;
+
   /*! List of placement surfaces. */
   std::vector<PlacementSurface> placement_surfaces_;
   /*! List of points of interest. */

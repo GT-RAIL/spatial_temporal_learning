@@ -34,11 +34,8 @@ InteractiveWorldModelClient::InteractiveWorldModelClient(const string &host, con
 {
 }
 
-TaskModel InteractiveWorldModelClient::getTaskModel(const uint32_t task_id) const
+bool InteractiveWorldModelClient::getTaskModel(const uint32_t task_id, TaskModel &task_model) const
 {
-  // the model to return
-  TaskModel task_model(task_id);
-
   // build the URL request
   stringstream ss;
   ss << "iwmodels/view/" << task_id;
@@ -49,11 +46,14 @@ TaskModel InteractiveWorldModelClient::getTaskModel(const uint32_t task_id) cons
   if (response.empty())
   {
     ROS_WARN("No interactive world models found for task ID %lu.", (ulong) task_id);
+    return false;
   } else
   {
-    Json::Reader reader;
+    // set the ID
+    task_model.setTaskID(task_id);
 
     // parse the root of the JSON response
+    Json::Reader reader;
     Json::Value json_response;
     reader.parse(response, json_response, false);
     const Json::Value &iwmodel = json_response["Iwmodel"];
@@ -109,7 +109,35 @@ TaskModel InteractiveWorldModelClient::getTaskModel(const uint32_t task_id) cons
 
       task_model.addPlacementModel(placement_model);
     }
-  }
 
-  return task_model;
+    return true;
+  }
+}
+
+bool InteractiveWorldModelClient::getTaskItems(const uint32_t task_id, vector<Item> &items) const
+{
+  // load the task model
+  TaskModel task_model;
+  if (this->getTaskModel(task_id, task_model))
+  {
+    task_model.getUniqueItems(items);
+    return items.size() > 0;
+  } else
+  {
+    return false;
+  }
+}
+
+bool InteractiveWorldModelClient::getTaskSurfaces(const uint32_t task_id, vector<Surface> &surfaces) const
+{
+  // load the task model
+  TaskModel task_model;
+  if (this->getTaskModel(task_id, task_model))
+  {
+    task_model.getUniqueSurfaces(surfaces);
+    return surfaces.size() > 0;
+  } else
+  {
+    return false;
+  }
 }
