@@ -17,6 +17,7 @@
 #include "geometry/Position.h"
 
 // Model
+#include "model/PersistenceModel.h"
 #include "model/PlacementModel.h"
 #include "model/TaskModel.h"
 

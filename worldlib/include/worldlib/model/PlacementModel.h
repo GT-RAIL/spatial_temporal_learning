@@ -80,7 +80,7 @@ public:
    *
    * \return The decision value of this PlacementModel.
    */
-  double getDecisionValue();
+  double getDecisionValue() const;
 
   /*!
    * \brief Decision value mutator.
@@ -98,7 +98,7 @@ public:
    *
    * \return The sigma-x value of this PlacementModel.
    */
-  double getSigmaX();
+  double getSigmaX() const;
 
   /*!
    * \brief Sigma-x value mutator.
@@ -116,7 +116,7 @@ public:
    *
    * \return The sigma-y value of this PlacementModel.
    */
-  double getSigmaY();
+  double getSigmaY() const;
 
   /*!
    * \brief Sigma-y value mutator.
@@ -134,7 +134,7 @@ public:
    *
    * \return The sigma-theta value of this PlacementModel.
    */
-  double getSigmaTheta();
+  double getSigmaTheta() const;
 
   /*!
    * \brief Sigma-theta value mutator.

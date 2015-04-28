@@ -19,6 +19,7 @@
 
 using namespace std;
 using namespace rail::spatial_temporal_learning::worldlib::geometry;
+using namespace rail::spatial_temporal_learning::worldlib::model;
 using namespace rail::spatial_temporal_learning::worldlib::remote;
 using namespace rail::spatial_temporal_learning::worldlib::world;
 
@@ -139,6 +140,15 @@ void SpatialWorldClient::getObservationsBySurfaceName(const string &surface_name
   this->getObservationsHelper(observations, where_clause, 0, "`time` DESC");
 }
 
+void SpatialWorldClient::getObservationsByItemAndSurfaceName(const string &item_name, const string &surface_name,
+    vector<SpatialWorldObservation> &observations) const
+{
+  // build the SQL where clause and ignore case
+  string where_clause = "((UPPER(item_name)=\"" + boost::to_upper_copy(item_name) + "\") AND (UPPER(surface_name)=\""
+                        + boost::to_upper_copy(surface_name) + "\"))";
+  this->getObservationsHelper(observations, where_clause, 0, "`time` DESC");
+}
+
 void SpatialWorldClient::getObservationsBySurfaceFrameID(const string &surface_frame_id,
     vector<SpatialWorldObservation> &observations) const
 {
@@ -188,6 +198,11 @@ bool SpatialWorldClient::itemExistsOnSurface(const string &item_name, const stri
   }
 }
 
+bool SpatialWorldClient::itemObservedOnSurface(const world::Item &item, const world::Surface &surface) const
+{
+  this->itemObservedOnSurface(item.getName(), surface.getName());
+}
+
 bool SpatialWorldClient::itemObservedOnSurface(const string &item_name, const string &surface_name) const
 {
   if (this->connected())
@@ -208,7 +223,14 @@ bool SpatialWorldClient::itemObservedOnSurface(const string &item_name, const st
   }
 }
 
-void SpatialWorldClient::markObservationsAsRemoved(const std::string &item_name, const std::string &surface_name) const
+void SpatialWorldClient::markObservationsAsRemoved(const Item &item, const Surface &surface,
+    const ros::Time &removed_observed) const
+{
+  this->markObservationsAsRemoved(item.getName(), surface.getName(), removed_observed);
+}
+
+void SpatialWorldClient::markObservationsAsRemoved(const string &item_name, const string &surface_name,
+    const ros::Time &removed_observed) const
 {
   if (this->connected())
   {
@@ -223,19 +245,18 @@ void SpatialWorldClient::markObservationsAsRemoved(const std::string &item_name,
       this->getObservationsHelper(observations, where_clause);
 
       // update the observed removed for everything but the first (we will also update the estimated time there)
-      ros::Time now = ros::Time::now();
       for (size_t i = 1; i < observations.size(); i++)
       {
-        observations[i].setRemovedObserved(now);
+        observations[i].setRemovedObserved(removed_observed);
         this->updateObservation(observations[i]);
       }
 
-      // create an estimated time the item was removed using a Guassian distribution
+      // create an estimated time the item was removed using a Gaussian distribution
       SpatialWorldObservation &persistent = observations[0];
       SpatialWorldObservation &latest = observations[observations.size() - 1];
-      double delta = now.toSec() - persistent.getTime().toSec();
+      double delta = removed_observed.toSec() - latest.getTime().toSec();
       double mu = delta / 2.0;
-      double sigma = delta / 5.0;
+      double sigma = (delta - mu) / 3.0;
       // normal distribution
       boost::normal_distribution<> distribution(mu, sigma);
       boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator(random_, distribution);
@@ -247,7 +268,7 @@ void SpatialWorldClient::markObservationsAsRemoved(const std::string &item_name,
       double rand = max(0.0, min(delta, generator()));
 
       // set the estimated and observed time and update
-      persistent.setRemovedObserved(now);
+      persistent.setRemovedObserved(removed_observed);
       persistent.setRemovedEstimate(latest.getTime() + ros::Duration(rand));
       this->updateObservation(persistent);
     } else
@@ -260,6 +281,39 @@ void SpatialWorldClient::markObservationsAsRemoved(const std::string &item_name,
     ROS_WARN("Attempted to mark the %s on the %s as removed when no connection has been made.",
              item_name.c_str(), surface_name.c_str());
   }
+}
+
+PersistenceModel SpatialWorldClient::getPersistenceModel(const string &item_name, const string &surface_name) const
+{
+  return this->getPersistenceModel(Item(item_name), Surface(surface_name));
+}
+
+PersistenceModel SpatialWorldClient::getPersistenceModel(const Item &item, const Surface &surface) const
+{
+  PersistenceModel model(item, surface, 0, ros::Time::now());
+
+  // load the models we need
+  vector<SpatialWorldObservation> observations;
+  this->getObservationsByItemAndSurfaceName(item.getName(), surface.getName(), observations);
+
+  // any observation with a valid estimate is a guess at the time-to-removal
+  double mu = 0;
+  uint count = 0;
+  for (size_t i = 0; i < observations.size(); i++)
+  {
+    if (!observations[i].getRemovedEstimate().isZero())
+    {
+      // compute and convert to hours
+      ros::Duration diff = observations[i].getRemovedEstimate() - observations[i].getTime();
+      mu += diff.toSec() / 3600.0;
+      count++;
+    }
+  }
+  mu /= count;
+  cout << mu << endl;
+  // TODO
+
+  return PersistenceModel(item, surface, mu, ros::Time::now());
 }
 
 void SpatialWorldClient::getObservationsHelper(vector<SpatialWorldObservation> &observations,

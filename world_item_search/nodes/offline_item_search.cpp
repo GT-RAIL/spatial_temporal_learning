@@ -29,7 +29,8 @@ int main(int argc, char **argv)
   // check if everything started okay
   if (searcher.okay())
   {
-    ros::spin();
+    // run the process
+    searcher.run();
     return EXIT_SUCCESS;
   } else
   {

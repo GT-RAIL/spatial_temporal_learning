@@ -14,6 +14,7 @@
 // worldlib
 #include "SpatialWorldObservation.h"
 #include "SqlClient.h"
+#include "../model/PersistenceModel.h"
 #include "../world/Observation.h"
 
 // Boost
@@ -87,8 +88,8 @@ public:
    * Attempts to add observations to the spatial world database. If no connection is made, no effect is made.
    *
    * \param item The Item observed in the world.
-   * \param surface The Surface the item was observed on.
-   * \param pose The Pose of the Item with respect to the surface.
+   * \param surface The Surface the Item was observed on.
+   * \param pose The Pose of the Item with respect to the Surface.
    */
   void addObservations(const std::vector<world::Observation> &observations) const;
 
@@ -99,8 +100,8 @@ public:
    * This will create default timestamps for all values.
    *
    * \param item The Item observed in the world.
-   * \param surface The Surface the item was observed on.
-   * \param pose The Pose of the Item with respect to the surface.
+   * \param surface The Surface the Item was observed on.
+   * \param pose The Pose of the Item with respect to the Surface.
    */
   void addObservation(const world::Item &item, const world::Surface &surface, const geometry::Pose &pose) const;
 
@@ -114,36 +115,49 @@ public:
   void addObservation(const world::Observation &observation) const;
 
   /*!
-   * \brief Get all observations for a given item name.
+   * \brief Get all observations for a given Item name.
    *
-   * Load all observations for a given item name and store them in the given vector. If no connection is made, no effect
+   * Load all observations for a given Item name and store them in the given vector. If no connection is made, no effect
    * is made.
    *
-   * \param item_name The item name to load observations for (case is not important).
+   * \param item_name The Item name to load observations for (case is not important).
    * \param observations The array of observations to fill once loaded.
    */
   void getObservationsByItemName(const std::string &item_name,
       std::vector<SpatialWorldObservation> &observations) const;
 
   /*!
-   * \brief Get all observations for a given surface name.
+   * \brief Get all observations for a given Surface name.
    *
-   * Load all observations for a given surface name and store them in the given vector. If no connection is made, no
+   * Load all observations for a given Surface name and store them in the given vector. If no connection is made, no
    * effect is made.
    *
-   * \param surface_name The surface name to load observations for (case is not important).
+   * \param surface_name The Surface name to load observations for (case is not important).
    * \param observations The array of observations to fill once loaded.
    */
   void getObservationsBySurfaceName(const std::string &surface_name,
       std::vector<SpatialWorldObservation> &observations) const;
 
   /*!
-   * \brief Get all observations for a given surface frame ID.
+   * \brief Get all observations for a given Item and Surface name.
    *
-   * Load all observations for a given surface frame ID and store them in the given vector. Note that this function
+   * Load all observations for a given Item and Surface name and store them in the given vector. If no connection is
+   * made, no effect is made.
+   *
+   * \param item_name The Item name to load observations for (case is not important).
+   * \param surface_name The Surface name to load observations for (case is not important).
+   * \param observations The array of observations to fill once loaded.
+   */
+  void getObservationsByItemAndSurfaceName(const std::string &item_name, const std::string &surface_name,
+      std::vector<SpatialWorldObservation> &observations) const;
+
+  /*!
+   * \brief Get all observations for a given Surface frame ID.
+   *
+   * Load all observations for a given Surface frame ID and store them in the given vector. Note that this function
    * is case sensitive. If no connection is made, no effect is made.
    *
-   * \param surface_frame_id The surface name to load observations for (case **is** important).
+   * \param surface_frame_id The Surface name to load observations for (case **is** important).
    * \param observations The array of observations to fill once loaded.
    */
   void getObservationsBySurfaceFrameID(const std::string &surface_frame_id,
@@ -159,39 +173,90 @@ public:
   void updateObservation(const SpatialWorldObservation &observation) const;
 
   /*!
-   * \brief Check if an item still exists on a given surface.
+   * \brief Check if an Item still exists on a given Surface.
    *
-   * Check if the item still exists on a given surface (i.e., it was not removed yet). If no connection is made false
+   * Check if the Item still exists on a given Surface (i.e., it was not removed yet). If no connection is made false
    * is returned.
    *
-   * \param item_name The name of the item (case is not important).
-   * \param item_name The name of the surface (case is not important).
-   * \return Returns true if the item still exists on a given surface (i.e., it was not removed yet).
+   * \param item_name The name of the Item (case is not important).
+   * \param item_name The name of the Surface (case is not important).
+   * \return Returns true if the Item still exists on a given Surface (i.e., it was not removed yet).
    */
   bool itemExistsOnSurface(const std::string &item_name, const std::string &surface_name) const;
 
   /*!
-   * \brief Check if an item has ever been seen on a given surface.
+   * \brief Check if an Item has ever been seen on a given Surface.
    *
-   * Check if an item has ever been seen on a given surface. If no connection is made false is returned.
+   * Check if an Item has ever been seen on a given Surface. If no connection is made false is returned.
    *
-   * \param item_name The name of the item (case is not important).
-   * \param item_name The name of the surface (case is not important).
-   * \return Returns true if the item has ever been observed on a given surface.
+   * \param item The Item.
+   * \param surface The Surface.
+   * \return Returns true if the Item has ever been observed on a given Surface.
+   */
+  bool itemObservedOnSurface(const world::Item &item, const world::Surface &surface) const;
+
+  /*!
+   * \brief Check if an Item has ever been seen on a given Surface.
+   *
+   * Check if an Item has ever been seen on a given Surface. If no connection is made false is returned.
+   *
+   * \param item_name The name of the Item (case is not important).
+   * \param surface_name The name of the Surface (case is not important).
+   * \return Returns true if the Item has ever been observed on a given Surface.
    */
   bool itemObservedOnSurface(const std::string &item_name, const std::string &surface_name) const;
 
   /*!
-   * \brief Mark the given item on the given surface as being removed.
+   * \brief Mark the given Item on the given Surface as being removed.
    *
-   * Mark the given item on the given surface as being removed. This will set the observed removal time for all
+   * Mark the given Item on the given Surface as being removed. This will set the observed removal time for all
    * current observations to now and set an estimated time for removal for the longest observation. If no connection is
-   * made, or if the item was not currently on the surface, no effect is made.
+   * made, or if the Item was not currently on the Surface, no effect is made.
    *
-   * \param item_name The name of the item (case is not important).
-   * \param item_name The name of the surface (case is not important).
+   * \param Item The Item.
+   * \param surface The Surface.
+   * \param removed_observed The time the Item was observed removed (defaults to now).
    */
-  void markObservationsAsRemoved(const std::string &item_name, const std::string &surface_name) const;
+  void markObservationsAsRemoved(const world::Item &item, const world::Surface &surface,
+      const ros::Time &removed_observed = ros::Time::now()) const;
+
+  /*!
+   * \brief Mark the given Item on the given Surface as being removed.
+   *
+   * Mark the given Item on the given Surface as being removed. This will set the observed removal time for all
+   * current observations to now and set an estimated time for removal for the longest observation. If no connection is
+   * made, or if the Item was not currently on the Surface, no effect is made.
+   *
+   * \param item_name The name of the Item (case is not important).
+   * \param surface_name The name of the Surface (case is not important).
+   * \param removed_observed The time the Item was observed removed (defaults to now).
+   */
+  void markObservationsAsRemoved(const std::string &item_name, const std::string &surface_name,
+      const ros::Time &removed_observed = ros::Time::now()) const;
+
+  /*!
+   * \brief Get the PersistenceModel associated with the Item on a Surface.
+   *
+   * Get the PersistenceModel associated with the Item on a Surface. This will calculate parameters based on data
+   * from the spatial world database.
+   *
+   * \param item_name The name of the Item (case is not important).
+   * \param surface_name The name of the Surface (case is not important).
+   * \return The PersistenceModel loaded.
+   */
+  model::PersistenceModel getPersistenceModel(const std::string &item_name, const std::string &surface_name) const;
+
+  /*!
+   * \brief Get the PersistenceModel associated with the Item on a Surface.
+   *
+   * Get the PersistenceModel associated with the Item on a Surface. This will calculate parameters based on data
+   * from the spatial world database.
+   *
+   * \param item The Item.
+   * \param surface The Surface.
+   * \return The PersistenceModel loaded.
+   */
+  model::PersistenceModel getPersistenceModel(const world::Item &item, const world::Surface &surface) const;
 
 private:
   /*! Random number generator. */

@@ -51,6 +51,7 @@ set(WORLDLIB_SOURCE
   src/geometry/Pose.cpp
   src/geometry/Position.cpp
   # Model source files
+  src/model/PersistenceModel.cpp
   src/model/PlacementModel.cpp
   src/model/TaskModel.cpp
   # Remote source files

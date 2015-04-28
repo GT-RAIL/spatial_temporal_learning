@@ -39,7 +39,7 @@ void PlacementModel::setPlacement(const Placement &placement)
   placement_ = placement;
 }
 
-double PlacementModel::getDecisionValue()
+double PlacementModel::getDecisionValue() const
 {
   return decision_value_;
 }
@@ -50,7 +50,7 @@ void PlacementModel::setDecisionValue(const double decision_value)
   decision_value_ = decision_value;
 }
 
-double PlacementModel::getSigmaX()
+double PlacementModel::getSigmaX() const
 {
   return sigma_x_;
 }
@@ -60,7 +60,7 @@ void PlacementModel::setSigmaX(const double sigma_x)
   sigma_x_ = sigma_x;
 }
 
-double PlacementModel::getSigmaY()
+double PlacementModel::getSigmaY() const
 {
   return sigma_y_;
 }
@@ -70,7 +70,7 @@ void PlacementModel::setSigmaY(const double sigma_y)
   sigma_y_ = sigma_y;
 }
 
-double PlacementModel::getSigmaTheta()
+double PlacementModel::getSigmaTheta() const
 {
   return sigma_theta_;
 }
