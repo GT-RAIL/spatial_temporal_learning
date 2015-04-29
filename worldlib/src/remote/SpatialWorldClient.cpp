@@ -290,15 +290,13 @@ PersistenceModel SpatialWorldClient::getPersistenceModel(const string &item_name
 
 PersistenceModel SpatialWorldClient::getPersistenceModel(const Item &item, const Surface &surface) const
 {
-  PersistenceModel model(item, surface, 0, ros::Time::now());
-
   // load the models we need
   vector<SpatialWorldObservation> observations;
   this->getObservationsByItemAndSurfaceName(item.getName(), surface.getName(), observations);
 
   // any observation with a valid estimate is a guess at the time-to-removal
   double mu = 0;
-  uint count = 0;
+  uint32_t count = 0;
   for (size_t i = 0; i < observations.size(); i++)
   {
     if (!observations[i].getRemovedEstimate().isZero())
@@ -310,10 +308,12 @@ PersistenceModel SpatialWorldClient::getPersistenceModel(const Item &item, const
     }
   }
   mu /= count;
-  cout << mu << endl;
-  // TODO
+  double lambda = 1.0 / mu;
 
-  return PersistenceModel(item, surface, mu, ros::Time::now());
+  // TODO
+  PersistenceModel p(item, surface, lambda, count, observations.back().getTime());
+  cout << p.getProbabilityItemStillExists() << endl;
+  return p;
 }
 
 void SpatialWorldClient::getObservationsHelper(vector<SpatialWorldObservation> &observations,

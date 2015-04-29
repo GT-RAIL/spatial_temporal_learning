@@ -17,7 +17,11 @@
 #include "../world/Surface.h"
 
 // ROS
+#include <ros/duration.h>
 #include <ros/time.h>
+
+// Boost
+#include <boost/math/distributions/exponential.hpp>
 
 namespace rail
 {
@@ -46,9 +50,10 @@ public:
    * \param item The Item of this PersistenceModel.
    * \param surface The Surface of this PersistenceModel.
    * \param lambda The exponential distribution's lambda value of this PersistenceModel.
+   * \param count The number of observations used to create this model (i.e., our 'n').
    * \param last_seen The last time the item was seen.
    */
-  PersistenceModel(const world::Item &item, const world::Surface &surface, const double lambda,
+  PersistenceModel(const world::Item &item, const world::Surface &surface, const double lambda, const uint32_t count,
       const ros::Time &last_seen);
 
   /*!
@@ -124,6 +129,53 @@ public:
   void setLambda(const double lambda);
 
   /*!
+   * \brief Expected persistence value accessor.
+   *
+   * Get the expected persistence duration value of this PersistenceModel.
+   *
+   * \return The expected persistence duration value of this PersistenceModel.
+   */
+  ros::Duration getExpectedPersistence() const;
+
+  /*!
+   * \brief Probability Item still exists.
+   *
+   * Get probability the Item still exists on the Surface based on the given time.
+   *
+   * \param time The time to check the probability for (defaults to now).
+   * \return The probability the Item still exists on the Surface based on the given time.
+   */
+  double getProbabilityItemStillExists(const ros::Time &time = ros::Time::now()) const;
+
+  /*!
+   * \brief Probability Item was removed.
+   *
+   * Get probability the Item was removed from the Surface based on the given time.
+   *
+   * \param time The time to check the probability for (defaults to now).
+   * \return The probability the Item was removed from the Surface based on the given time.
+   */
+  double getProbabilityItemRemoved(const ros::Time &time = ros::Time::now()) const;
+
+  /*!
+   * \brief Count value accessor.
+   *
+   * Get the count value of this PersistenceModel.
+   *
+   * \return The count value of this PersistenceModel.
+   */
+  uint32_t getCount() const;
+
+  /*!
+   * \brief Count value mutator.
+   *
+   * Set the count value of this PersistenceModel.
+   *
+   * \param count The new count value of this PersistenceModel.
+   */
+  void setCount(const uint32_t count);
+
+  /*!
    * \brief Last seen time value accessor (immutable).
    *
    * Get the time value of this PersistenceModel.
@@ -155,8 +207,10 @@ private:
   world::Item item_;
   /*! The Surface value for the model. */
   world::Surface surface_;
-  /*! The exponential distribution's lambda value. */
-  double lambda_;
+  /*! The exponential distribution. */
+  boost::math::exponential_distribution<> exponential_;
+  /*! The number of observations used to create this model (i.e., our 'n'). */
+  uint32_t count_;
   /*! The last seen time the Item was observed on the Surface. */
   ros::Time last_seen_;
 };
