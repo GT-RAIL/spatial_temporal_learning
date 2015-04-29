@@ -15,11 +15,30 @@
 // World Item Search
 #include "world_item_search/OfflineItemSearcher.h"
 
+// ROS
+#include <ros/package.h>
+
+// Boost
+#include <boost/filesystem.hpp>
+
+// C++ Standard Library
+#include <fstream>
+
 using namespace std;
 using namespace rail::spatial_temporal_learning;
 
 OfflineItemSearcher::OfflineItemSearcher() : worldlib::remote::Node()
 {
+  // location of the GeoLife files
+  string geolife(ros::package::getPath("world_item_search") + "/geolife");
+  private_node_.getParam("geolife", geolife);
+  // open the Geolife files for model generation
+  this->loadGeoLife(geolife);
+  if (!okay_)
+  {
+    ROS_ERROR("Unable to load any GeoLife PLT files in '%s'.", geolife.c_str());
+  }
+
   // create the clients we need
   interactive_world_model_client_ = this->createInteractiveWorldModelClient();
   spatial_world_client_ = this->createSpatialWorldClient();
@@ -48,6 +67,7 @@ OfflineItemSearcher::OfflineItemSearcher() : worldlib::remote::Node()
   world_.getRoom(0).addSurface(worldlib::world::Surface("Coffee Table"));
   world_.getRoom(0).addSurface(worldlib::world::Surface("Sink Unit"));
   world_.getRoom(0).addSurface(worldlib::world::Surface("Dining Table with Chairs"));
+  world_.getRoom(0).addSurface(worldlib::world::Surface("Dresser"));
 
   // create some observations
   ros::Time now = ros::Time::now();
@@ -75,6 +95,55 @@ OfflineItemSearcher::~OfflineItemSearcher()
   delete spatial_world_client_;
 }
 
+void OfflineItemSearcher::loadGeoLife(const std::string &directory)
+{
+  // use Boost to search the directory
+  boost::filesystem::path path(directory.c_str());
+  if (boost::filesystem::exists(path))
+  {
+    // the order is not defined, so we will sort a list instead
+    vector<string> files;
+    for (boost::filesystem::directory_iterator itr(path); itr != boost::filesystem::directory_iterator(); ++itr)
+    {
+      // check for a .plt file
+      if (itr->path().extension().string() == ".plt")
+      {
+        files.push_back(itr->path().string());
+      }
+    }
+    std::sort(files.begin(), files.end());
+    for (size_t i = 0; i < files.size(); i++)
+    {
+      // open the file and read each line
+      ifstream myfile(files[i].c_str());
+      string line;
+      uint32_t line_count = 0;
+      while (std::getline(myfile, line))
+      {
+        // first 6 lines don't contain data
+        if (++line_count > 6)
+        {
+          // split the line based on ','
+          stringstream ss(line);
+          string token;
+          uint32_t token_count = 0;
+          while (std::getline(ss, token, ','))
+          {
+            //double lat = boost::lexical_cast<double>(token);
+            if (token_count == 4)
+            {
+              // date is "days since 12/30/1899" -- concert to posix time (move to 1/1/1970 then convert to seconds)
+              double days = boost::lexical_cast<double>(token) - 25569;
+              ros::Time time(round(days * 86400));
+            }
+            token_count++;
+          }
+        }
+      }
+    }
+  }
+}
+
 void OfflineItemSearcher::run() const
 {
   cout << "=== Begining Simulated Item Search Experiments ===" << endl;
@@ -93,6 +162,7 @@ void OfflineItemSearcher::run() const
   worldlib::model::PersistenceModel model = spatial_world_client_->getPersistenceModel("spoon", "Coffee Table");
 
   cout << "=== Simulated Item Search Experiments Finished ===" << endl;
+
 }
 
 void OfflineItemSearcher::printItemList(const vector<worldlib::world::Item> &items) const

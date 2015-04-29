@@ -6,7 +6,11 @@ project(world_item_search)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslib
   worldlib
+)
+find_package(Boost REQUIRED COMPONENTS
+  filesystem
 )
 
 ###################################################
@@ -24,6 +28,7 @@ catkin_package()
 
 ## Specify additional locations of header files
 include_directories(include
+  ${boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -35,6 +40,7 @@ add_executable(offline_item_search
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(offline_item_search
+  ${boost_LIBRARIES}
   ${catkin_LIBRARIES}
 )
 

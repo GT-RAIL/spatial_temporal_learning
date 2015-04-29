@@ -252,8 +252,8 @@ void SpatialWorldClient::markObservationsAsRemoved(const string &item_name, cons
       }
 
       // create an estimated time the item was removed using a Gaussian distribution
-      SpatialWorldObservation &persistent = observations[0];
-      SpatialWorldObservation &latest = observations[observations.size() - 1];
+      SpatialWorldObservation &persistent = observations.front();
+      SpatialWorldObservation &latest = observations.back();
       double delta = removed_observed.toSec() - latest.getTime().toSec();
       double mu = delta / 2.0;
       double sigma = (delta - mu) / 3.0;
@@ -308,12 +308,10 @@ PersistenceModel SpatialWorldClient::getPersistenceModel(const Item &item, const
     }
   }
   mu /= count;
+  // lambda is the reciprocal of the expecuted value
   double lambda = 1.0 / mu;
 
-  // TODO
-  PersistenceModel p(item, surface, lambda, count, observations.back().getTime());
-  cout << p.getProbabilityItemStillExists() << endl;
-  return p;
+  return PersistenceModel(item, surface, lambda, observations.size(), observations.back().getTime());
 }
 
 void SpatialWorldClient::getObservationsHelper(vector<SpatialWorldObservation> &observations,

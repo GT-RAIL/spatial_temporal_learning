@@ -61,6 +61,16 @@ public:
 
 private:
   /*!
+   * \brief Load GeoLife PLT log files.
+   *
+   * Load GeoLife trajectory files as a means of model verification testing. This will load all PLT files from the
+   * given directory and place them in the searcher's vector to utilize later.
+   *
+   * \param directory The directory to search for PLT files in.
+   */
+  void loadGeoLife(const std::string &directory);
+
+  /*!
    * \brief Print the list of items to standard out.
    *
    * Prints the given list of items to standard out.
