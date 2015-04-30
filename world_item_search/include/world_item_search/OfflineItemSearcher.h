@@ -15,6 +15,9 @@
 #ifndef SPATIAL_TEMPORAL_LEARNING_OFFLINE_ITEM_SEARCHER_H_
 #define SPATIAL_TEMPORAL_LEARNING_OFFLINE_ITEM_SEARCHER_H_
 
+// World Item Search
+#include "GeoLifeEntry.h"
+
 // worldlib
 #include "worldlib/remote/Node.h"
 #include "worldlib/model/TaskModel.h"
@@ -87,6 +90,9 @@ private:
    * \param surfaces The surface list to print.
    */
   void printSurfaceList(const std::vector<worldlib::world::Surface> &surfaces) const;
+
+  /*! The data entry values from the GeoLife dataset. */
+  std::vector<GeoLifeEntry> geolife_;
 
   /*! The interactive world model client */
   worldlib::remote::InteractiveWorldModelClient *interactive_world_model_client_;

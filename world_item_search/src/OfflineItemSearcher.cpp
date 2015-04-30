@@ -34,6 +34,7 @@ OfflineItemSearcher::OfflineItemSearcher() : worldlib::remote::Node()
   private_node_.getParam("geolife", geolife);
   // open the Geolife files for model generation
   this->loadGeoLife(geolife);
+  okay_ &= !geolife_.empty();
   if (!okay_)
   {
     ROS_ERROR("Unable to load any GeoLife PLT files in '%s'.", geolife.c_str());
@@ -124,20 +125,31 @@ void OfflineItemSearcher::loadGeoLife(const std::string &directory)
         if (++line_count > 6)
         {
           // split the line based on ','
+          GeoLifeEntry entry;
           stringstream ss(line);
           string token;
           uint32_t token_count = 0;
-          while (std::getline(ss, token, ','))
+          while (std::getline(ss, token, ',') && ++token_count <= 5)
           {
-            //double lat = boost::lexical_cast<double>(token);
-            if (token_count == 4)
+            if (token_count == 1)
+            {
+              double latitude = boost::lexical_cast<double>(token);
+              entry.setLatitude(latitude);
+            }
+            if (token_count == 2)
+            {
+              double longitude = boost::lexical_cast<double>(token);
+              entry.setLongitude(longitude);
+            }
+            else if (token_count == 5)
             {
               // date is "days since 12/30/1899" -- concert to posix time (move to 1/1/1970 then convert to seconds)
               double days = boost::lexical_cast<double>(token) - 25569;
               ros::Time time(round(days * 86400));
+              entry.setTime(time);
             }
-            token_count++;
           }
+          geolife_.push_back(entry);
         }
       }
     }

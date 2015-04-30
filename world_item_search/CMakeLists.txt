@@ -35,6 +35,7 @@ include_directories(include
 ## Declare a cpp executable
 add_executable(offline_item_search
   nodes/offline_item_search.cpp
+  src/GeoLifeEntry.cpp
   src/OfflineItemSearcher.cpp
 )
 
