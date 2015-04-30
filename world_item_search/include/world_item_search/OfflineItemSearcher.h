@@ -23,6 +23,9 @@
 #include "worldlib/model/TaskModel.h"
 #include "worldlib/world/World.h"
 
+// Boost
+#include <boost/random.hpp>
+
 // C++ Standard Library
 #include <vector>
 
@@ -74,6 +77,14 @@ private:
   void loadGeoLife(const std::string &directory);
 
   /*!
+   * \brief Run the GeoLife persistence model experiment.
+   *
+   * Run the GeoLife persistence model experiment. This experiment will randomly pick points from the first 2/3 of
+   * the GeoLife entries and store them as observations before building a persistence model and validating that model.
+   */
+  void runGeoLifeExperiment() const;
+
+  /*!
    * \brief Print the list of items to standard out.
    *
    * Prints the given list of items to standard out.
@@ -91,8 +102,13 @@ private:
    */
   void printSurfaceList(const std::vector<worldlib::world::Surface> &surfaces) const;
 
+  /*! Random number generator. */
+  boost::mt19937 random_;
+
   /*! The data entry values from the GeoLife dataset. */
   std::vector<GeoLifeEntry> geolife_;
+  /*! Bounding region for the GeoLife data */
+  double min_lat_, max_lat_, min_lng_, max_lng_;
 
   /*! The interactive world model client */
   worldlib::remote::InteractiveWorldModelClient *interactive_world_model_client_;

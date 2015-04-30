@@ -113,6 +113,11 @@ void OfflineItemSearcher::loadGeoLife(const std::string &directory)
       }
     }
     std::sort(files.begin(), files.end());
+    // keep track of min and max values
+    min_lat_ = numeric_limits<double>::infinity();
+    max_lat_ = -numeric_limits<double>::infinity();
+    min_lng_ = numeric_limits<double>::infinity();
+    max_lng_ = -numeric_limits<double>::infinity();
     for (size_t i = 0; i < files.size(); i++)
     {
       // open the file and read each line
@@ -134,11 +139,15 @@ void OfflineItemSearcher::loadGeoLife(const std::string &directory)
             if (token_count == 1)
             {
               double latitude = boost::lexical_cast<double>(token);
+              min_lat_ = min(min_lat_, latitude);
+              max_lat_ = max(max_lat_, latitude);
               entry.setLatitude(latitude);
             }
             if (token_count == 2)
             {
               double longitude = boost::lexical_cast<double>(token);
+              min_lng_ = min(min_lng_, longitude);
+              max_lng_ = max(max_lat_, longitude);
               entry.setLongitude(longitude);
             }
             else if (token_count == 5)
@@ -161,20 +170,68 @@ void OfflineItemSearcher::run() const
   cout << "=== Begining Simulated Item Search Experiments ===" << endl;
 
   // print our world info
-  cout << "World Items: ";
-  this->printItemList(world_.getItems());
-  cout << "World Surfaces: ";
-  this->printSurfaceList(world_.getRoom(0).getSurfaces());
-  cout << "Interactive World Items: ";
-  this->printItemList(interactive_world_.getItems());
-  cout << "Interactive World Surfaces: ";
-  this->printSurfaceList(interactive_world_.getRoom(0).getSurfaces());
+//  cout << "World Items: ";
+//  this->printItemList(world_.getItems());
+//  cout << "World Surfaces: ";
+//  this->printSurfaceList(world_.getRoom(0).getSurfaces());
+//  cout << "Interactive World Items: ";
+//  this->printItemList(interactive_world_.getItems());
+//  cout << "Interactive World Surfaces: ";
+//  this->printSurfaceList(interactive_world_.getRoom(0).getSurfaces());
 
   // todo
-  worldlib::model::PersistenceModel model = spatial_world_client_->getPersistenceModel("spoon", "Coffee Table");
+  //worldlib::model::PersistenceModel model = spatial_world_client_->getPersistenceModel("spoon", "Coffee Table");
+
+  // run the GeoLife experiment
+  this->runGeoLifeExperiment();
+
 
   cout << "=== Simulated Item Search Experiments Finished ===" << endl;
 
+}
+
+void OfflineItemSearcher::runGeoLifeExperiment() const
+{
+  cout << "=== Start GeoLife Experiment ===" << endl;
+
+  cout << min_lat_ << "-" << max_lat_ << endl;
+  cout << min_lng_ << "-" << max_lng_ << endl;
+
+  // generate random points from the first 2/3 of the data points from a uniform distribution
+  int two_thirds = round((geolife_.size() * (2.0 / 3.0)));
+  boost::uniform_int<> distribution(0, two_thirds);
+  boost::variate_generator<boost::mt19937, boost::uniform_int<> > generator(random_, distribution);
+  // randomly seed
+  time_t seed;
+  time(&seed);
+  generator.engine().seed(seed);
+
+  // generate 10% of observations (will need to order)
+  vector<int> rand;
+  while (rand.size() < 0.1 * two_thirds)
+  {
+    // get a random unique number
+    int generated;
+    do
+    {
+      generated = generator();
+    } while (std::find(rand.begin(), rand.end(), generated) != rand.end());
+    rand.push_back(generated);
+  }
+  std::sort(rand.begin(), rand.end());
+
+  // create and store the observations
+  worldlib::world::Item item("Person");
+  for (size_t i = 0; i < rand.size(); i++)
+  {
+    // TODO grid
+    const GeoLifeEntry &entry = geolife_[i];
+    worldlib::world::Surface surface("todo");
+    worldlib::world::Observation observation(item, surface, worldlib::geometry::Pose(), entry.getTime());
+    spatial_world_client_->addObservation(observation);
+  }
+
+  cout << "=== End GeoLife Experiment ===" << endl;
 }
 
 void OfflineItemSearcher::printItemList(const vector<worldlib::world::Item> &items) const

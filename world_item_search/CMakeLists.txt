@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   worldlib
 )
 find_package(Boost REQUIRED COMPONENTS
+  random
   filesystem
 )
 
