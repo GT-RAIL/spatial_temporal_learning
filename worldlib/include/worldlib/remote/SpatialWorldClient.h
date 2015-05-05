@@ -164,6 +164,26 @@ public:
       std::vector<SpatialWorldObservation> &observations) const;
 
   /*!
+   * \brief Get the most frequent surface name for the given Item.
+   *
+   * Get the name of the surface the the given item has been seen on the most.
+   *
+   * \param item_name The Item name to get the most frequent surface for (case is not important).
+   * \return The name of the Surface.
+   */
+  std::string getMostFrequentSurfaceName(const std::string &item_name) const;
+
+  /*!
+   * \brief Get the most frequent surface name for the given Item.
+   *
+   * Get the name of the surface the the given item has been seen on the most.
+   *
+   * \param item_name The Item to get the most frequent surface for.
+   * \return The name of the Surface.
+   */
+  std::string getMostFrequentSurfaceName(const world::Item &item) const;
+
+  /*!
    * \brief Update the given observation.
    *
    * Update the given observation in the database with its current fields. If no connection is made, no effect is made.
@@ -233,6 +253,15 @@ public:
    */
   void markObservationsAsRemoved(const std::string &item_name, const std::string &surface_name,
       const ros::Time &removed_observed = ros::Time::now()) const;
+
+  /*!
+   * \brief Get a list of unique surface names.
+   *
+   * Get a unique list of surface names and store them in the given vector.
+   *
+   * \param names The vector to store the name list in.
+   */
+  void getUniqueSurfaceNames(std::vector<std::string> &names) const;
 
   /*!
    * \brief Get the PersistenceModel associated with the Item on a Surface.

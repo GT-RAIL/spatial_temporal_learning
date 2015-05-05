@@ -157,6 +157,34 @@ void SpatialWorldClient::getObservationsBySurfaceFrameID(const string &surface_f
   this->getObservationsHelper(observations, where_clause, 0, "`time` DESC");
 }
 
+string SpatialWorldClient::getMostFrequentSurfaceName(const Item &item) const
+{
+  return this->getMostFrequentSurfaceName(item.getName());
+}
+
+string SpatialWorldClient::getMostFrequentSurfaceName(const string &item_name) const
+{
+  string surface_name;
+
+  // build the SQL
+  string sql = "SELECT `surface_name`, COUNT(`surface_name`) AS `count` FROM `observations` WHERE `item_name`=\""
+               + boost::to_upper_copy(item_name) + "\" GROUP BY `surface_name` ORDER BY `count` DESC LIMIT 1;";
+  // check for a result
+  MYSQL_RES *result = this->query(sql);
+  if (result != NULL)
+  {
+    // get the first and only result
+    surface_name = string(mysql_fetch_row(result)[0]);
+    mysql_free_result(result);
+  } else
+  {
+    ROS_WARN("No observations found for '%s' -- will return the empty string for most frequent surface name.",
+             item_name.c_str());
+  }
+
+  return surface_name;
+}
+
 void SpatialWorldClient::updateObservation(const SpatialWorldObservation &observation) const
 {
   // create the SQL statement
@@ -184,12 +212,13 @@ bool SpatialWorldClient::itemExistsOnSurface(const string &item_name, const stri
   {
     // build the SQL where clause
     string where_clause = "((UPPER(item_name)=\"" + item_name + "\") AND "
-                          + "(UPPER(surface_name)=\"" + surface_name + "\"))";
+                          + "(UPPER(surface_name)=\"" + surface_name + "\") AND "
+                          + "(`removed_observed`='0000-00-00 00:00:00'))";
     vector<SpatialWorldObservation> observations;
     // attempt to find the latest observation that meets our criteria
     this->getObservationsHelper(observations, where_clause, 1);
-    // check if we have our match and if has not been seen leaving
-    return observations.size() == 1 && observations[0].getRemovedObserved() == ros::Time(0);
+    // check if we have our match
+    return !observations.empty();
   } else
   {
     ROS_WARN("Attempted to check if a %s exists on the %s when no connection has been made.", item_name.c_str(),
@@ -234,16 +263,16 @@ void SpatialWorldClient::markObservationsAsRemoved(const string &item_name, cons
 {
   if (this->connected())
   {
-    // check if the item actually is still on the surface
-    if (this->itemExistsOnSurface(item_name, surface_name))
-    {
-      // grab all the entities that have not been marked
-      string where_clause = "((UPPER(item_name)=\"" + item_name + "\") AND "
-                            + "(UPPER(surface_name)=\"" + surface_name + "\") AND "
-                            + "(`removed_observed`='0000-00-00 00:00:00'))";
-      vector<SpatialWorldObservation> observations;
-      this->getObservationsHelper(observations, where_clause);
+    // grab all the entities that have not been marked
+    string where_clause = "((UPPER(item_name)=\"" + item_name + "\") AND "
+                          + "(UPPER(surface_name)=\"" + surface_name + "\") AND "
+                          + "(`removed_observed`='0000-00-00 00:00:00'))";
+    vector<SpatialWorldObservation> observations;
+    this->getObservationsHelper(observations, where_clause);
 
+    // check if we have any to mark
+    if (!observations.empty())
+    {
       // update the observed removed for everything but the first (we will also update the estimated time there)
       for (size_t i = 1; i < observations.size(); i++)
       {
@@ -283,6 +312,24 @@ void SpatialWorldClient::markObservationsAsRemoved(const string &item_name, cons
   }
 }
 
+void SpatialWorldClient::getUniqueSurfaceNames(vector<string> &names) const
+{
+  // build the SQL
+  string sql = "SELECT DISTINCT `surface_name` FROM `observations` ORDER BY `surface_name`;";
+  // get the result
+  MYSQL_RES *result = this->query(sql);
+  if (result != NULL)
+  {
+    // parse each result
+    MYSQL_ROW entity;
+    while ((entity = mysql_fetch_row(result)) != NULL)
+    {
+      names.push_back(entity[0]);
+    }
+    mysql_free_result(result);
+  }
+}
+
 PersistenceModel SpatialWorldClient::getPersistenceModel(const string &item_name, const string &surface_name) const
 {
   return this->getPersistenceModel(Item(item_name), Surface(surface_name));
@@ -292,23 +339,21 @@ PersistenceModel SpatialWorldClient::getPersistenceModel(const Item &item, const
 {
   // load the models we need
   vector<SpatialWorldObservation> observations;
-  this->getObservationsByItemAndSurfaceName(item.getName(), surface.getName(), observations);
+  string where_clause = "((UPPER(item_name)=\"" + boost::to_upper_copy(item.getName()) + "\") AND "
+                        + "(UPPER(surface_name)=\"" + boost::to_upper_copy(surface.getName()) + "\") AND NOT "
+                        + "(`removed_estimate`='0000-00-00 00:00:00'))";
+  this->getObservationsHelper(observations, where_clause, 0, "`time` DESC");
 
   // any observation with a valid estimate is a guess at the time-to-removal
   double mu = 0;
-  uint32_t count = 0;
   for (size_t i = 0; i < observations.size(); i++)
   {
-    if (!observations[i].getRemovedEstimate().isZero())
-    {
-      // compute and convert to hours
-      ros::Duration diff = observations[i].getRemovedEstimate() - observations[i].getTime();
-      mu += diff.toSec() / 3600.0;
-      count++;
-    }
+    // compute and convert to hours
+    ros::Duration diff = observations[i].getRemovedEstimate() - observations[i].getTime();
+    mu += diff.toSec() / 3600.0;
   }
-  mu /= count;
-  // lambda is the reciprocal of the expecuted value
+  mu /= observations.size();
+  // lambda is the reciprocal of the expected value
   double lambda = 1.0 / mu;
 
   return PersistenceModel(item, surface, lambda, observations.size(), observations.back().getTime());

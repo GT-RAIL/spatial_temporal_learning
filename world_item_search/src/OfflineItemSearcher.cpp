@@ -54,12 +54,6 @@ OfflineItemSearcher::OfflineItemSearcher() : worldlib::remote::Node()
   interactive_world_task_model_.getUniqueItems(interactive_world_.getItems());
   interactive_world_task_model_.getUniqueSurfaces(interactive_world_.getRoom(0).getSurfaces());
 
-  // attempt to connect to the spatial world database
-  okay_ &= spatial_world_client_->connect();
-
-  // clear the initial database
-  spatial_world_client_->clearAllEntities();
-
   // initialize the objects we have in our "world"
   world_.addItem(worldlib::world::Item("spoon"));
   world_.addItem(worldlib::world::Item("fork"));
@@ -70,18 +64,14 @@ OfflineItemSearcher::OfflineItemSearcher() : worldlib::remote::Node()
   world_.getRoom(0).addSurface(worldlib::world::Surface("Dining Table with Chairs"));
   world_.getRoom(0).addSurface(worldlib::world::Surface("Dresser"));
 
-  // create some observations
-  ros::Time now = ros::Time::now();
-  worldlib::world::Observation o1(world_.findItem("spoon"), world_.getRoom(0).findSurface("Coffee Table"),
-                                  worldlib::geometry::Pose(), now - ros::Duration(120));
-  worldlib::world::Observation o2(world_.findItem("spoon"), world_.getRoom(0).findSurface("Coffee Table"),
-                                  worldlib::geometry::Pose(), now - ros::Duration(60));
-  worldlib::world::Observation o3(world_.findItem("spoon"), world_.getRoom(0).findSurface("Coffee Table"),
-                                  worldlib::geometry::Pose(), now - ros::Duration(45));
-  spatial_world_client_->addObservation(o1);
-  spatial_world_client_->addObservation(o2);
-  spatial_world_client_->addObservation(o3);
-  spatial_world_client_->markObservationsAsRemoved("spoon", "Coffee Table");
+  // attempt to connect to the spatial world database
+  okay_ &= spatial_world_client_->connect();
+
+  // set when samples are drawn
+  min_lat_ = numeric_limits<double>::infinity();
+  max_lat_ = -numeric_limits<double>::infinity();
+  min_lng_ = numeric_limits<double>::infinity();
+  max_lng_ = -numeric_limits<double>::infinity();
 
   if (okay_)
   {
@@ -113,11 +103,6 @@ void OfflineItemSearcher::loadGeoLife(const std::string &directory)
       }
     }
     std::sort(files.begin(), files.end());
-    // keep track of min and max values
-    min_lat_ = numeric_limits<double>::infinity();
-    max_lat_ = -numeric_limits<double>::infinity();
-    min_lng_ = numeric_limits<double>::infinity();
-    max_lng_ = -numeric_limits<double>::infinity();
     for (size_t i = 0; i < files.size(); i++)
     {
       // open the file and read each line
@@ -139,15 +124,11 @@ void OfflineItemSearcher::loadGeoLife(const std::string &directory)
             if (token_count == 1)
             {
               double latitude = boost::lexical_cast<double>(token);
-              min_lat_ = min(min_lat_, latitude);
-              max_lat_ = max(max_lat_, latitude);
               entry.setLatitude(latitude);
             }
             if (token_count == 2)
             {
               double longitude = boost::lexical_cast<double>(token);
-              min_lng_ = min(min_lng_, longitude);
-              max_lng_ = max(max_lat_, longitude);
               entry.setLongitude(longitude);
             }
             else if (token_count == 5)
@@ -165,73 +146,224 @@ void OfflineItemSearcher::loadGeoLife(const std::string &directory)
   }
 }
 
-void OfflineItemSearcher::run() const
+void OfflineItemSearcher::run()
 {
   cout << "=== Begining Simulated Item Search Experiments ===" << endl;
 
-  // print our world info
-//  cout << "World Items: ";
-//  this->printItemList(world_.getItems());
-//  cout << "World Surfaces: ";
-//  this->printSurfaceList(world_.getRoom(0).getSurfaces());
-//  cout << "Interactive World Items: ";
-//  this->printItemList(interactive_world_.getItems());
-//  cout << "Interactive World Surfaces: ";
-//  this->printSurfaceList(interactive_world_.getRoom(0).getSurfaces());
-
-  // todo
-  //worldlib::model::PersistenceModel model = spatial_world_client_->getPersistenceModel("spoon", "Coffee Table");
-
   // run the GeoLife experiment
   this->runGeoLifeExperiment();
-
 
   cout << "=== Simulated Item Search Experiments Finished ===" << endl;
 
 }
 
-void OfflineItemSearcher::runGeoLifeExperiment() const
+void OfflineItemSearcher::runGeoLifeExperiment()
 {
-  cout << "=== Start GeoLife Experiment ===" << endl;
+  cout << endl << "=== Start GeoLife Experiment ===" << endl;
 
-  cout << min_lat_ << "-" << max_lat_ << endl;
-  cout << min_lng_ << "-" << max_lng_ << endl;
+  // generate random points from the first 3/4 of the data points from a uniform distribution
+  int observation_pool_size = round((geolife_.size() * (3.0 / 4.0)));
+  int verification_pool_size = geolife_.size() - observation_pool_size;
+  boost::uniform_int<> observation_dist(0, observation_pool_size - 1);
+  boost::uniform_int<> verification_dist(observation_pool_size, geolife_.size() - 1);
+  boost::variate_generator<boost::mt19937, boost::uniform_int<> > observation_generator(random_, observation_dist);
+  boost::variate_generator<boost::mt19937, boost::uniform_int<> > verification_generator(random_, verification_dist);
 
-  // generate random points from the first 2/3 of the data points from a uniform distribution
-  int two_thirds = round((geolife_.size() * (2.0 / 3.0)));
-  boost::uniform_int<> distribution(0, two_thirds);
-  boost::variate_generator<boost::mt19937, boost::uniform_int<> > generator(random_, distribution);
-  // randomly seed
-  time_t seed;
-  time(&seed);
-  generator.engine().seed(seed);
-
-  // generate 10% of observations (will need to order)
-  vector<int> rand;
-  while (rand.size() < 0.1 * two_thirds)
+  // generate 20% of observations (will need to order)
+  vector<int> rand_observations;
+  int num_observations = round(0.2 * observation_pool_size);
+  cout << "  Generating " << num_observations << " random indices out of " << observation_pool_size
+  << " for observations... " << flush;
+  while (rand_observations.size() < num_observations)
   {
     // get a random unique number
     int generated;
     do
     {
-      generated = generator();
-    } while (std::find(rand.begin(), rand.end(), generated) != rand.end());
-    rand.push_back(generated);
+      generated = observation_generator();
+    } while (std::find(rand_observations.begin(), rand_observations.end(), generated) != rand_observations.end());
+    rand_observations.push_back(generated);
   }
-  std::sort(rand.begin(), rand.end());
+  std::sort(rand_observations.begin(), rand_observations.end());
+  cout << "done." << endl;
+
+  // generate 20% of verification points
+  vector<int> rand_verification;
+  int num_verifications = round(0.2 * verification_pool_size);
+  cout << "  Generating " << num_verifications << " random indices out of " << verification_pool_size
+  << " for verification... " << flush;
+  while (rand_verification.size() < num_verifications)
+  {
+    // get a random unique number
+    int generated;
+    do
+    {
+      generated = verification_generator();
+    } while (std::find(rand_verification.begin(), rand_verification.end(), generated) != rand_verification.end());
+    rand_verification.push_back(generated);
+  }
+  cout << "done." << endl;
+
+  // determine the new min-max values
+  cout << "  Finding bounding region... " << flush;
+  for (size_t i = 0; i < rand_observations.size(); i++)
+  {
+    min_lat_ = min(min_lat_, geolife_[rand_observations[i]].getLatitude());
+    max_lat_ = max(max_lat_, geolife_[rand_observations[i]].getLatitude());
+    min_lng_ = min(min_lng_, geolife_[rand_observations[i]].getLongitude());
+    max_lng_ = max(max_lng_, geolife_[rand_observations[i]].getLongitude());
+  }
+  for (size_t i = 0; i < rand_verification.size(); i++)
+  {
+    min_lat_ = min(min_lat_, geolife_[rand_verification[i]].getLatitude());
+    max_lat_ = max(max_lat_, geolife_[rand_verification[i]].getLatitude());
+    min_lng_ = min(min_lng_, geolife_[rand_verification[i]].getLongitude());
+    max_lng_ = max(max_lng_, geolife_[rand_verification[i]].getLongitude());
+  }
+  cout << "[" << min_lat_ << ", " << max_lat_ << "] x [" << min_lng_ << ", " << max_lng_ << "]" << endl;
 
   // create and store the observations
-  worldlib::world::Item item("Person");
-  for (size_t i = 0; i < rand.size(); i++)
+  cout << "  Inserting samples into the spatial world database... " << flush;
+  // clear the initial database
+  spatial_world_client_->clearAllEntities();
+  worldlib::world::Observation observation(worldlib::world::Item("Person"));
+  // internal counter of where things where
+  map<string, uint32_t> surface_counts;
+  for (size_t i = 0; i < rand_observations.size(); i++)
   {
-    // TODO grid
-    const GeoLifeEntry &entry = geolife_[i];
-    worldlib::world::Surface surface("todo");
-    worldlib::world::Observation observation(item, surface, worldlib::geometry::Pose(), entry.getTime());
-    spatial_world_client_->addObservation(observation);
+    const GeoLifeEntry &entry = geolife_[rand_observations[i]];
+    const string surface_name = this->getGeoLifeSurface(entry.getLatitude(), entry.getLongitude());
+
+    // update the counter
+    surface_counts[surface_name]++;
+
+    // only add observations when there are changes (dramatic speedup)
+    if (observation.getSurface().getName() != surface_name)
+    {
+      // if the last surface name is empty, it means it was the first entry
+      if (!observation.getSurface().getName().empty())
+      {
+        // add the last seen and mark it as removed
+        const GeoLifeEntry &prev = geolife_[rand_observations[i - 1]];
+        observation.setTime(prev.getTime());
+        spatial_world_client_->addObservation(observation);
+        spatial_world_client_->markObservationsAsRemoved(observation.getItem(), observation.getSurface(),
+                                                         entry.getTime());
+      }
+      // add the new observation
+      observation.getSurface().setName(surface_name);
+      observation.setTime(entry.getTime());
+      spatial_world_client_->addObservation(observation);
+    }
+  }
+  cout << "done." << endl;
+
+  // load each model
+  cout << "  Loading initial persistence models... " << flush;
+  // load the surface we have models for
+  vector<string> surfaces;
+  spatial_world_client_->getUniqueSurfaceNames(surfaces);
+  // store in a map
+  map<string, worldlib::model::PersistenceModel> models;
+  for (int i = 0; i < surfaces.size(); i++)
+  {
+    const worldlib::world::Surface surface(surfaces[i]);
+    models[surface.getName()] = spatial_world_client_->getPersistenceModel(observation.getItem(), surface);
+  }
+  cout << "done." << endl;
+
+  // check the accuracy of the model
+  cout << "  Running accuarcy test... " << endl;
+  size_t model_correct = 0, most_freq_correct = 0, greedy_correct = 0, random_correct = 0;
+  // get the most frequent surface
+  uint32_t best_freq_count = 0;
+  string most_freq_guess;
+  for (size_t i = 0; i < surfaces.size(); i++)
+  {
+    if (surface_counts[surfaces[i]] > best_freq_count)
+    {
+      best_freq_count = surface_counts[surfaces[i]];
+      most_freq_guess = surfaces[i];
+    }
+  }
+  // used for random guess
+  boost::uniform_int<> random_surface_dist(0, surfaces.size() - 1);
+  boost::variate_generator<boost::mt19937, boost::uniform_int<> > random_surface(random_, random_surface_dist);
+  for (int i = 0; i < rand_verification.size(); i++)
+  {
+    // get the ground truth of where the "item" is located
+    const GeoLifeEntry &entry = geolife_[rand_verification[i]];
+    const string ground_truth_name = this->getGeoLifeSurface(entry.getLatitude(), entry.getLongitude());
+
+    // check for the best guess by our model
+    double model_best_p = -numeric_limits<double>::infinity();
+    string model_guess_name;
+    for (int j = 0; j < surfaces.size(); j++)
+    {
+      const worldlib::model::PersistenceModel &model = models[surfaces[j]];
+      double p = model.getProbabilityItemStillExists(entry.getTime());
+      if (p > model_best_p)
+      {
+        model_guess_name = model.getSurface().getName();
+        model_best_p = p;
+      }
+    }
+
+    // randomly guess
+    string random_guess_name = surfaces[random_surface()];
+
+    // greedy last seen
+    const GeoLifeEntry &greedy_entry = geolife_[(i == 0) ? rand_observations.back() : rand_verification[i - 1]];
+    string greedy_guess_name = this->getGeoLifeSurface(greedy_entry.getLatitude(), greedy_entry.getLongitude());
+
+    // check if we matches
+    if (model_guess_name == ground_truth_name)
+    {
+      model_correct++;
+    }
+    if (most_freq_guess == ground_truth_name)
+    {
+      most_freq_correct++;
+    }
+    if (greedy_guess_name == ground_truth_name)
+    {
+      greedy_correct++;
+    }
+    if (random_guess_name == ground_truth_name)
+    {
+      random_correct++;
+    }
+
+    // update the observed time
+    models[ground_truth_name].setLastSeen(entry.getTime());
   }
 
-  cout << "=== End GeoLife Experiment ===" << endl;
+  double model_percentage = (((double) model_correct) / rand_verification.size()) * 100.0;
+  cout << "         Model Rate: ";
+  cout << model_percentage << "% (" << model_correct << "/" << rand_verification.size() << ")" << endl;
+  double most_freq_percentage = (((double) most_freq_correct) / rand_verification.size()) * 100.0;
+  cout << "    Most Freq. Rate: ";
+  cout << most_freq_percentage << "% (" << most_freq_correct << "/" << rand_verification.size() << ")" << endl;
+  double greedy_percentage = (((double) greedy_correct) / rand_verification.size()) * 100.0;
+  cout << "        Greedy Rate: ";
+  cout << greedy_percentage << "% (" << greedy_correct << "/" << rand_verification.size() << ")" << endl;
+  double random_percentage = (((double) random_correct) / rand_verification.size()) * 100.0;
+  cout << "        Random Rate: ";
+  cout << random_percentage << "% (" << random_correct << "/" << rand_verification.size() << ")" << endl;
+
+  cout << "=== End GeoLife Experiment ===" << endl << endl;
+}
+
+string OfflineItemSearcher::getGeoLifeSurface(const double latitude, const double longitude) const
+{
+  double row_size = (max_lng_ - min_lng_) / NUM_GEOLIFE_ROWS;
+  double col_size = (max_lat_ - min_lat_) / NUM_GEOLIFE_COLUMNS;
+
+  int row = (int) ((longitude - min_lng_) / row_size);
+  int col = (int) ((latitude - min_lat_) / col_size);
+  stringstream ss;
+  ss << row << "-" << col;
+  return ss.str();
 }
 
 void OfflineItemSearcher::printItemList(const vector<worldlib::world::Item> &items) const
@@ -255,4 +387,3 @@ void OfflineItemSearcher::printSurfaceList(const vector<worldlib::world::Surface
   }
   cout << "]" << endl;
 }
-

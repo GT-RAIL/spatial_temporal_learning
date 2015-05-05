@@ -25,7 +25,7 @@ done
 # Download and unzip the data
 mkdir -p /tmp/geolife
 cd /tmp/geolife
-# wget http://ftp.research.microsoft.com/downloads/b16d359d-d164-469e-9fd4-daa38f2b2e13/Geolife%20Trajectories%201.3.zip
+wget http://ftp.research.microsoft.com/downloads/b16d359d-d164-469e-9fd4-daa38f2b2e13/Geolife%20Trajectories%201.3.zip
 echo "Uncompressing files..."
 unzip *.zip >> /dev/null
 

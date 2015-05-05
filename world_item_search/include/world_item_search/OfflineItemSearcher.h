@@ -44,6 +44,11 @@ namespace spatial_temporal_learning
 class OfflineItemSearcher : public worldlib::remote::Node
 {
 public:
+  /*! The number of rows in the 2D GeoLife grid. */
+  static const int NUM_GEOLIFE_ROWS = 10;
+  /*! The number of columns in the 2D GeoLife grid. */
+  static const int NUM_GEOLIFE_COLUMNS = 10;
+
   /*!
    * \brief Create a OfflineItemSearcher and associated ROS information.
    *
@@ -63,7 +68,7 @@ public:
    *
    * Run the simulated item search process and print out the output.
    */
-  void run() const;
+  void run();
 
 private:
   /*!
@@ -82,7 +87,19 @@ private:
    * Run the GeoLife persistence model experiment. This experiment will randomly pick points from the first 2/3 of
    * the GeoLife entries and store them as observations before building a persistence model and validating that model.
    */
-  void runGeoLifeExperiment() const;
+  void runGeoLifeExperiment();
+
+  /*!
+   * \brief Determine the "surface" name based on latitude and longitude.
+   *
+   * Determine the "surface" name based on the 2D grid overlayed on the map. This will be a surface such as "2-3" for
+   * row two, column three.
+   *
+   * \param latitude The latitude of the point.
+   * \param longitude The longitude of the point.
+   * \return The string "surface" name.
+   */
+  std::string getGeoLifeSurface(const double latitude, const double longitude) const;
 
   /*!
    * \brief Print the list of items to standard out.

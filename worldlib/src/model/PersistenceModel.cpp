@@ -83,7 +83,7 @@ double PersistenceModel::getProbabilityItemRemoved(const ros::Time &time) const
   // convert to hours
   double hours = duration.toSec() / 3600;
   // calculate the CDF (probability the event did occur)
-  return boost::math::cdf(exponential_, hours);
+  return boost::math::cdf(exponential_, abs(hours));
 }
 
 uint32_t PersistenceModel::getCount() const

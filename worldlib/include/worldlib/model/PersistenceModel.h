@@ -47,14 +47,14 @@ public:
    *
    * Create a new PersistenceModel with the given parameters.
    *
-   * \param item The Item of this PersistenceModel.
-   * \param surface The Surface of this PersistenceModel.
-   * \param lambda The exponential distribution's lambda value of this PersistenceModel.
-   * \param count The number of observations used to create this model (i.e., our 'n').
-   * \param last_seen The last time the item was seen.
+   * \param item The Item of this PersistenceModel (defaults to empty Item).
+   * \param surface The Surface of this PersistenceModel (defaults to empty Surface).
+   * \param lambda The exponential distribution's lambda value of this PersistenceModel (defaults to 1).
+   * \param count The number of observations used to create this model (i.e., our 'n'; defaults to 0).
+   * \param last_seen The last time the item was seen (defaults to 0 time).
    */
-  PersistenceModel(const world::Item &item, const world::Surface &surface, const double lambda, const uint32_t count,
-      const ros::Time &last_seen);
+  PersistenceModel(const world::Item &item = world::Item(), const world::Surface &surface = world::Surface(),
+      const double lambda = 1, const uint32_t count = 0, const ros::Time &last_seen = ros::Time(0));
 
   /*!
    * \brief Item value accessor (immutable).

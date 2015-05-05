@@ -43,16 +43,16 @@ public:
    *
    * Create a new Observation with the given Item, Surface, and Pose (in reference to the surface itself).
    *
-   * \param item The Item seen in this Observation.
-   * \param surface The Surface the Item was seen on in this Observation.
-   * \param pose The Pose of this Item in this Observation with respect to the Surface.
+   * \param item The Item seen in this Observation (defaults to empty Item).
+   * \param surface The Surface the Item was seen on in this Observation (defaults to empty Surface).
+   * \param pose The Pose of this Item in this Observation with respect to the Surface (defaults to empty Pose).
    * \param time The ros::Time the observation was made (defaults to now).
    * \param removed_estimate The estimated ros::Time the Item was removed from the Surface (defaults to 0).
    * \param removed_observed The observed ros::Time the Item was not seen on the Surface (defaults to 0).
    */
-  Observation(const Item &item, const Surface &surface, const geometry::Pose &pose,
-      const ros::Time &time = ros::Time::now(), const ros::Time &removed_estimate = ros::Time(0),
-      const ros::Time &removed_observed = ros::Time(0));
+  Observation(const Item &item = Item(), const Surface &surface = Surface(),
+      const geometry::Pose &pose = geometry::Pose(), const ros::Time &time = ros::Time::now(),
+      const ros::Time &removed_estimate = ros::Time(0), const ros::Time &removed_observed = ros::Time(0));
 
   /*!
    * \brief Item value accessor (immutable).
