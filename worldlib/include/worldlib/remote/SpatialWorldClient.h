@@ -289,7 +289,7 @@ public:
 
 private:
   /*! Random number generator. */
-  boost::mt19937 random_;
+  //boost::mt19937 random_;
 
   /*!
    * \brief Create the spatial world table (sws).

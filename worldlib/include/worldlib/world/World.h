@@ -63,6 +63,7 @@ public:
    */
   bool loadFromYaml(const std::string &file);
 
+#ifdef YAMLCPP_GT_0_5_0
   /*!
    * \brief Parse basic Object info from a YAML node.
    *
@@ -72,6 +73,7 @@ public:
    * \return The Object parsed.
    */
   Object parseObject(const YAML::Node &object) const;
+#endif
 
   /*!
    * \brief Fixed frame ID accessor.

@@ -61,6 +61,9 @@ private:
   /*! The spatial world database client */
   worldlib::remote::SpatialWorldClient *spatial_world_client_;
 
+  /*! The base frame of the robot. */
+  std::string base_frame_id_;
+
   /*! The recognized objects topic. */
   ros::Subscriber recognized_objects_sub_;
 };

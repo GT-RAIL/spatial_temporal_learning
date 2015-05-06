@@ -129,6 +129,7 @@ bool World::loadFromYaml(const std::string &file)
 #endif
 }
 
+#ifdef YAMLCPP_GT_0_5_0
 Object World::parseObject(const YAML::Node &object) const
 {
   // get the name, frame ID, and dimensions
@@ -153,6 +154,7 @@ Object World::parseObject(const YAML::Node &object) const
 
   return o;
 }
+#endif
 
 const string &World::getFixedFrameID() const
 {
