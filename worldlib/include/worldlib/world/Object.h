@@ -231,6 +231,28 @@ public:
    */
   bool checkName(const std::string &name) const;
 
+  /*!
+   * \brief Position transform.
+   *
+   * Transform the given Position from the parent's frame to this Object's frame. For example, the parent of a
+   * Surface is a Room. Passing in a Position in the Room frame will return that Position in the Surface frame.
+   *
+   * \param position The Position to transform,
+   * \return Returns a new Position object in relation to this Object.
+   */
+  geometry::Position fromParentFrame(const geometry::Position &position) const;
+
+  /*!
+   * \brief Pose transform.
+   *
+   * Transform the given Pose from the parent's frame to this Object's frame. For example, the parent of a
+   * Surface is a Room. Passing in a Pose in the Room frame will return that Pose in the Surface frame.
+   *
+   * \param pose The Pose to transform,
+   * \return Returns a new Pose object in relation to this Object.
+   */
+  geometry::Pose fromParentFrame(const geometry::Pose &pose) const;
+
 private:
   /*! Name of the object and frame ID. */
   std::string name_, frame_id_;

@@ -15,7 +15,18 @@
 using namespace std;
 using namespace rail::spatial_temporal_learning::worldlib::world;
 
-PlacementSurface::PlacementSurface(const string &name, const string &frame_id, const geometry::Pose &pose,
-    const double width, const double depth, const double height) : Object(name, frame_id, pose, width, depth, height)
+PlacementSurface::PlacementSurface(const string &name, const string &frame_id, const string &nav_frame_id,
+    const geometry::Pose &pose, const double width, const double depth, const double height)
+    : Object(name, frame_id, pose, width, depth, height), nav_frame_id_(nav_frame_id)
 {
+}
+
+const string &PlacementSurface::getNavFrameID() const
+{
+  return nav_frame_id_;
+}
+
+void PlacementSurface::setNavFrameID(const string &nav_frame_id)
+{
+  nav_frame_id_ = nav_frame_id;
 }

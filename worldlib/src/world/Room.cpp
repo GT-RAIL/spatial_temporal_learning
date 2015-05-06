@@ -12,10 +12,11 @@
 #include "worldlib/world/Room.h"
 
 using namespace std;
+using namespace rail::spatial_temporal_learning::worldlib::geometry;
 using namespace rail::spatial_temporal_learning::worldlib::world;
 
-Room::Room(const string &name, const string &frame_id, const geometry::Pose &pose, const double width,
-    const double depth, const double height) : Object(name, frame_id, pose, width, depth, height)
+Room::Room(const string &name, const string &frame_id, const Pose &pose, const double width, const double depth,
+    const double height) : Object(name, frame_id, pose, width, depth, height)
 {
 }
 
@@ -117,3 +118,39 @@ Surface &Room::findSurface(const string &name)
   // no match found
   throw out_of_range("Room::findSurface : Surface name does not exist.");
 }
+
+const Surface &Room::findClosestSurface(const Position &position) const
+{
+  return surfaces_[this->findClosestSurfaceIndex(position)];
+}
+
+Surface &Room::findClosestSurface(const Position &position)
+{
+  return surfaces_[this->findClosestSurfaceIndex(position)];
+}
+
+size_t Room::findClosestSurfaceIndex(const Position &position) const
+{
+  if (surfaces_.empty())
+  {
+    throw out_of_range("Room::findClosestSurface : No surfaces exist.");
+  } else
+  {
+    // go through each and check the distance
+    double best = numeric_limits<double>::infinity();
+    size_t best_index = 0;
+    for (size_t i = 0; i < surfaces_.size(); i++)
+    {
+      // calculate distance
+      double distance = position.distance(surfaces_[i].getPose().getPosition());
+      if (distance < best)
+      {
+        best = distance;
+        best_index = i;
+      }
+    }
+
+    return best_index;
+  }
+}
+

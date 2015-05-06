@@ -20,8 +20,8 @@ using namespace std;
 using namespace rail::spatial_temporal_learning::worldlib::geometry;
 using namespace rail::spatial_temporal_learning::worldlib::world;
 
-Object::Object(const string &name, const string &frame_id, const geometry::Pose &pose, const double width,
-    const double depth, const double height) : name_(name), frame_id_(frame_id), pose_(pose)
+Object::Object(const string &name, const string &frame_id, const Pose &pose, const double width, const double depth,
+    const double height) : name_(name), frame_id_(frame_id), pose_(pose)
 {
   width_ = width;
   depth_ = depth;
@@ -132,7 +132,7 @@ void Object::removeAlias(const size_t index)
   }
 }
 
-bool Object::checkName(const std::string &name) const
+bool Object::checkName(const string &name) const
 {
   string name_uc = boost::to_upper_copy(name);
 
@@ -154,4 +154,21 @@ bool Object::checkName(const std::string &name) const
 
   // no match found
   return false;
+}
+
+Position Object::fromParentFrame(const Position &position) const
+{
+  // create a Pose and use the Pose method
+  Pose p1(position);
+  Pose p2 = this->fromParentFrame(p1);
+  return p2.getPosition();
+}
+
+Pose Object::fromParentFrame(const Pose &pose) const
+{
+  // use TF2
+  tf2::Transform t_pose_parent = pose.toTF2Transform();
+  tf2::Transform t_object_parent = pose_.toTF2Transform();
+  tf2::Transform t_pose_object = t_object_parent.inverseTimes(t_pose_parent);
+  return Pose(t_pose_object);
 }

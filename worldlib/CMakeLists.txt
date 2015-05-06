@@ -7,11 +7,14 @@ project(worldlib)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
+  roslib
   tf2
+  tf2_ros
 )
 find_package(Boost REQUIRED COMPONENTS
   random
 )
+find_package(PkgConfig)
 
 ###################################################
 ## Declare things to be passed to other projects ##
@@ -22,6 +25,7 @@ set(WORLDLIB_EXTERN_LIBS
   curl
   jsoncpp
   mysqlclient
+  yaml-cpp
 )
 
 ## LIBRARIES: libraries you create in this project that dependent projects also need
@@ -38,10 +42,18 @@ catkin_package(
 ## Build ##
 ###########
 
+
+## Check for what version of YAML we have
+pkg_check_modules(YAML_CPP yaml-cpp)
+if(${YAML_CPP_VERSION} VERSION_GREATER 0.5)
+  add_definitions(-DYAMLCPP_GT_0_5_0)
+endif()
+
 ## Specify additional locations of header files
 include_directories(include
   ${boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIRS}
 )
 
 # Source files for the library
@@ -98,4 +110,10 @@ install(TARGETS ${PROJECT_NAME}
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
+)
+
+## Copy config files
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  FILES_MATCHING PATTERN "*.yaml"
 )

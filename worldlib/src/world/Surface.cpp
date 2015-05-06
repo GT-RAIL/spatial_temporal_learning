@@ -121,27 +121,15 @@ PlacementSurface &Surface::findPlacementSurface(const string &name)
 
 const PlacementSurface &Surface::findClosestPlacementSurface(const Position &position) const
 {
-  if (placement_surfaces_.empty())
-  {
-    throw out_of_range("Surface::findClosestPlacementSurface : No placement surfaces exist.");
-  } else
-  {
-    return placement_surfaces_[this->findClosestPlacementSurfaceHelper(position)];
-  }
+  return placement_surfaces_[this->findClosestPlacementSurfaceIndex(position)];
 }
 
 PlacementSurface &Surface::findClosestPlacementSurface(const Position &position)
 {
-  if (placement_surfaces_.empty())
-  {
-    throw out_of_range("Surface::findClosestPlacementSurface : No placement surfaces exist.");
-  } else
-  {
-    return placement_surfaces_[this->findClosestPlacementSurfaceHelper(position)];
-  }
+  return placement_surfaces_[this->findClosestPlacementSurfaceIndex(position)];
 }
 
-size_t Surface::findClosestPlacementSurfaceHelper(const Position &position) const
+size_t Surface::findClosestPlacementSurfaceIndex(const Position &position) const
 {
   if (placement_surfaces_.empty())
   {

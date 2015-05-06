@@ -15,9 +15,12 @@
 // worldlib
 #include "InteractiveWorldModelClient.h"
 #include "SpatialWorldClient.h"
+#include "../geometry/Pose.h"
+#include "../world/World.h"
 
 // ROS
 #include <ros/node_handle.h>
+#include <tf2_ros/transform_listener.h>
 
 namespace rail
 {
@@ -55,6 +58,16 @@ public:
 
 protected:
   /*!
+   * \brief Load world configuration data from a YAML file.
+   *
+   * Loads world configuration data from a YML file by pulling parameters from the ROS parameter server.
+   *
+   * \param verbose If parameter information should be printed to ROS_INFO.
+   * \return If the load was successful.
+   */
+  bool loadWorldYamlFile(const bool verbose = true);
+
+  /*!
    * \brief Create a new InteractiveWorldModelClient.
    *
    * Create a new InteractiveWorldModelClient by pulling connection parameters from the ROS parameter server.
@@ -74,10 +87,27 @@ protected:
    */
   SpatialWorldClient *createSpatialWorldClient(const bool verbose = true) const;
 
-  /*! The public and private ROS node handles. */
-  ros::NodeHandle node_, private_node_;
+  /*!
+   * \brief Transform the given Pose into the World frame.
+   *
+   * Transform the given Pose into the World frame based on TF data from the TF buffer.
+   *
+   * \param pose The Pose to transform.
+   * \param pose_frame_id The frame ID that the Pose is in.
+   * \return The Pose in respect to the World fixed frame.
+   */
+  geometry::Pose transformToWorld(const geometry::Pose &pose, const std::string &pose_frame_id) const;
+
   /*! The okay check flag. */
   bool okay_;
+  /*! The world configuration. */
+  worldlib::world::World world_;
+  /*! The public and private ROS node handles. */
+  ros::NodeHandle node_, private_node_;
+  /*! TF lookup buffer. */
+  tf2_ros::Buffer tfs_;
+  /*! TF client. */
+  tf2_ros::TransformListener tf_listener_;
 };
 
 }

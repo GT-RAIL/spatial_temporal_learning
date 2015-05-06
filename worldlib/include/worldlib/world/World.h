@@ -15,6 +15,12 @@
 #include "Item.h"
 #include "Room.h"
 
+// ROS
+#include <tf2_ros/buffer.h>
+
+// YAML
+#include <yaml-cpp/yaml.h>
+
 // C++ Standard Library
 #include <string>
 #include <vector>
@@ -45,6 +51,27 @@ public:
    * \param fixed_frame_id The fixed frame ID of the World (defaults to the empty string).
    */
   World(const std::string &fixed_frame_id = "");
+
+  /*!
+   * \brief Load configuration data from a YAML file.
+   *
+   * Load world configuration information from the given YAML file. This will attempt to load Pose data from a TF
+   * client and thus should only be run on a live system.
+   *
+   * \param file The name of the YAML file to load.
+   * \return True if configuration data was successfully loaded.
+   */
+  bool loadFromYaml(const std::string &file);
+
+  /*!
+   * \brief Parse basic Object info from a YAML node.
+   *
+   * Parse the given YAML node as an Object and return that Object. This assumes no Pose data is given.
+   *
+   * \param object The YAML node to parse.
+   * \return The Object parsed.
+   */
+  Object parseObject(const YAML::Node &object) const;
 
   /*!
    * \brief Fixed frame ID accessor.
@@ -238,6 +265,7 @@ public:
    * Check for the existence of an Item in the World. This will also check the aliases. Case is not important.
    *
    * \param name The name or alias of the Item to find.
+   * \returns If the Item exists.
    * \throws std::out_of_range Thrown if no Room with the given name exists.
    */
   bool itemExists(const std::string &name) const;
@@ -249,6 +277,7 @@ public:
    * with the given name, the first Item is returned.
    *
    * \param name The name or alias of the Item to find.
+   * \returns The Item with the given name.
    * \throws std::out_of_range Thrown if no Item with the given name exists.
    */
   const Item &findItem(const std::string &name) const;
@@ -260,9 +289,39 @@ public:
    * with the given name, the first Item is returned.
    *
    * \param name The name or alias of the Item to find.
+   * \returns The Item with the given name.
    * \throws std::out_of_range Thrown if no Item with the given name exists.
    */
   Item &findItem(const std::string &name);
+
+  /*!
+   * \brief Closest Surface finder.
+   *
+   * Find the closest surface to the given Position in the world fixed frame.
+   *
+   * \param position The Position to find the closest Surface to (in the world's fixed frame).
+   * \param room_index Will be set to the Room index in the World.
+   * \param surface_index Will be set to the Surface index in the Room.
+   * \throws std::out_of_range Thrown if no Rooms or Surfaces exist in the World.
+   */
+  void findClosestSurface(const geometry::Position &position, size_t &room_index, size_t &surface_index) const;
+
+  /*!
+   * \brief PlacementSurface finder.
+   *
+   * Find the PlacementSurface (if any) that the Position is on. This will checking the bounding range of each
+   * Surface and find the closest PlacementSurface the Position is on. Since it is likely a Position will not be on a
+   * Placement surface (e.g., from noise or floating objects), this method returns false instead of throwing an
+   * exception.
+   *
+   * \param position The Position to find the PlacemetSurface to (in the world's fixed frame).
+   * \param room_index Will be set to the Room index in the World.
+   * \param surface_index Will be set to the Surface index in the Room.
+   * \param placement_surface_index Will be set to the PlacemetSurface index in the Surface.
+   * \return If a valid PlacementSurface was found.
+   */
+  bool findPlacementSurface(const geometry::Position &position, size_t &room_index, size_t &surface_index,
+      size_t &placement_surface_index) const;
 
 private:
   /*! The fixed frame of the world. */

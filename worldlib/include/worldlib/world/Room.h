@@ -14,6 +14,7 @@
 // worldlib
 #include "Object.h"
 #include "Surface.h"
+#include "../geometry/Position.h"
 
 // C++ Standard Library
 #include <vector>
@@ -150,6 +151,39 @@ public:
    * \throws std::out_of_range Thrown if no Surface with the given name exists.
    */
   Surface &findSurface(const std::string &name);
+
+  /*!
+   * \brief Closest Surface finder (immutable).
+   *
+   * Find the closest surface to the given Position in the room's fixed frame.
+   *
+   * \param position The Position to find the closest Surface to (in the room's fixed frame).
+   * \returns The closest Surface.
+   * \throws std::out_of_range Thrown if no Surfaces exist in the Room.
+   */
+  const Surface &findClosestSurface(const geometry::Position &position) const;
+
+  /*!
+   * \brief Closest Surface finder.
+   *
+   * Find the closest surface to the given Position in the room's fixed frame.
+   *
+   * \param position The Position to find the closest Surface to (in the room's fixed frame).
+   * \returns The closest Surface.
+   * \throws std::out_of_range Thrown if no Surfaces exist in the Room.
+   */
+  Surface &findClosestSurface(const geometry::Position &position);
+
+  /*!
+   * \brief Closest Surface index finder.
+   *
+   * Find the closest Surface index to the given Position. If no Surface exists, an exception is thrown.
+   *
+   * \param position The position (in reference to the world's frame) to find the closest Surface to.
+   * \return The index of the closest Surface.
+   * \throws std::out_of_range Thrown if no Surface exists.
+   */
+  size_t findClosestSurfaceIndex(const geometry::Position &position) const;
 
 private:
   /*! List of surfaces. */

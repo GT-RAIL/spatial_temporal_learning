@@ -12,12 +12,29 @@
 // worldlib
 #include "worldlib/remote/Node.h"
 
+// ROS
+#include <ros/package.h>
+
 using namespace std;
+using namespace rail::spatial_temporal_learning::worldlib::geometry;
 using namespace rail::spatial_temporal_learning::worldlib::remote;
 
-Node::Node() : private_node_("~")
+Node::Node() : private_node_("~"), tf_listener_(tfs_)
 {
   okay_ = true;
+}
+
+bool Node::loadWorldYamlFile(const bool verbose)
+{
+  // location of the world config file
+  string world_config(ros::package::getPath("worldlib") + "/config/world.yaml");
+  private_node_.getParam("world_config", world_config);
+  if (verbose)
+  {
+    ROS_INFO("World Configutation YAML: %s", world_config.c_str());
+  }
+  // load the config
+  return world_.loadFromYaml(world_config);
 }
 
 InteractiveWorldModelClient *Node::createInteractiveWorldModelClient(const bool verbose) const
@@ -75,4 +92,16 @@ SpatialWorldClient *Node::createSpatialWorldClient(const bool verbose) const
 bool Node::okay() const
 {
   return okay_;
+}
+
+Pose Node::transformToWorld(const Pose &pose, const string &pose_frame_id) const
+{
+  // get the transform from the frame origin to the world frame
+  const worldlib::geometry::Pose p_frame_world(tfs_.lookupTransform(world_.getFixedFrameID(), pose_frame_id,
+                                                                    ros::Time(0)).transform);
+  // multiply to get the pose in the world frame
+  const tf2::Transform t_pose_frame = pose.toTF2Transform();
+  const tf2::Transform t_frame_world = p_frame_world.toTF2Transform();
+  const worldlib::geometry::Pose p_pose_world(t_frame_world * t_pose_frame);
+  return p_pose_world;
 }

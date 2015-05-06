@@ -172,6 +172,18 @@ public:
   PlacementSurface &findClosestPlacementSurface(const geometry::Position &position);
 
   /*!
+   * \brief Closest PlacementSurface index finder.
+   *
+   * Find the closest PlacementSurface index to the given Position. If no placement surfaces exist, an exception is
+   * thrown.
+   *
+   * \param position The position (in reference to the surface's frame) to find the closest PlacementSurface to.
+   * \return The index of the closest PlacementSurface.
+   * \throws std::out_of_range Thrown if no placement surfaces exist.
+   */
+  size_t findClosestPlacementSurfaceIndex(const geometry::Position &position) const;
+
+  /*!
    * \brief Points of interest value accessor (immutable).
    *
    * Get the points of interest of this Surface.
@@ -273,16 +285,6 @@ public:
   PointOfInterest &findPointOfInterest(const std::string &name);
 
 private:
-  /*!
-   * \brief Closest PlacementSurface finder.
-   *
-   * Find the closest PlacementSurface to the given Position. If no placement surfaces exist, an exception is thrown.
-   *
-   * \param position The position (in reference to the surface's frame) to find the closest PlacementSurface to.
-   * \throws std::out_of_range Thrown if no placement surfaces exist.
-   */
-  size_t findClosestPlacementSurfaceHelper(const geometry::Position &position) const;
-
   /*! List of placement surfaces. */
   std::vector<PlacementSurface> placement_surfaces_;
   /*! List of points of interest. */
