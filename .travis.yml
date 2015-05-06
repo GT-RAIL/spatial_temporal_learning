@@ -22,6 +22,7 @@ install:
   - ln -s `pwd` /tmp/ws/src/package
   - cd /tmp/ws/src
   - git clone https://github.com/WPI-RAIL/rail_pick_and_place.git
+  - git clone https://github.com/WPI-RAIL/rail_manipulation_msgs.git
   - mv rail_pick_and_place/graspdb rail_pick_and_place/rail_pick_and_place_msgs .
   - rm -rf rail_pick_and_place
   - cd ../

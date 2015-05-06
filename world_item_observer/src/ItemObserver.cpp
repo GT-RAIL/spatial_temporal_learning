@@ -12,8 +12,12 @@
 // World Item Observer
 #include "world_item_observer/ItemObserver.h"
 
+// ROS
+#include <graspdb/Client.h>
+
 using namespace std;
 using namespace rail::spatial_temporal_learning;
+using namespace rail::pick_and_place;
 
 ItemObserver::ItemObserver() : worldlib::remote::Node()
 {
@@ -25,7 +29,30 @@ ItemObserver::ItemObserver() : worldlib::remote::Node()
   okay_ &= spatial_world_client_->connect();
 
   // connect to the grasp model database to check for items
+  int port = pick_and_place::graspdb::Client::DEFAULT_PORT;
+  string host("127.0.0.1");
+  string user("ros");
+  string password("");
+  string db("graspdb");
+  node_.getParam("/graspdb/host", host);
+  node_.getParam("/graspdb/port", port);
+  node_.getParam("/graspdb/user", user);
+  node_.getParam("/graspdb/password", password);
+  node_.getParam("/graspdb/db", db);
+  pick_and_place::graspdb::Client client(host, port, user, password, db);
 
+  if (client.connect())
+  {
+    // add the items
+    vector<string> objects;
+    client.getUniqueGraspModelObjectNames(objects);
+    for (size_t i = 0; i < objects.size(); i++)
+    {
+      world_.addItem(worldlib::world::Item(objects[i]));
+    }
+    ROS_INFO("Found %lu unique items in the world.", world_.getNumItems());
+    okay_ &= true;
+  }
 
   // connect to the segmented objects topic
   string recognized_objects_topic("/object_recognition_listener/recognized_objects");
@@ -50,6 +77,9 @@ void ItemObserver::recognizedObjectsCallback(const rail_manipulation_msgs::Segme
   // only work on a non-cleared list
   if (!objects->cleared)
   {
+    size_t new_observation_count = 0;
+    // used to keep track of what was seen where (to mark things as missing)
+    map<string, vector<string> > seen;
     // only utilize recognized objects
     for (size_t i = 0; i < objects->objects.size(); i++)
     {
@@ -75,9 +105,36 @@ void ItemObserver::recognizedObjectsCallback(const rail_manipulation_msgs::Segme
           // create and store the Observation
           const worldlib::world::Item item(o.name, "", p_centroid_surface, o.width, o.depth, o.height);
           spatial_world_client_->addObservation(item, surface, p_centroid_surface);
+          new_observation_count++;
+          seen[surface.getName()].push_back(item.getName());
         }
-
       }
     }
+
+    // check what items were no longer seen on the surface
+    size_t removed_count = 0;
+    for (map<string, vector<string> >::iterator iter = seen.begin(); iter != seen.end(); ++iter)
+    {
+      const string &surface_name = iter->first;
+      const vector<string> &items_seen = iter->second;
+      const vector<worldlib::world::Item> &world_items = world_.getItems();
+      for (size_t i = 0; i < world_items.size(); i++)
+      {
+        // check if the item was seen
+        const worldlib::world::Item &cur = world_items[i];
+        if (std::find(items_seen.begin(), items_seen.end(), cur.getName()) == items_seen.end())
+        {
+          // check if the item had been there previously
+          if (spatial_world_client_->itemExistsOnSurface(cur.getName(), surface_name))
+          {
+            // mark it as removed
+            spatial_world_client_->markObservationsAsRemoved(cur.getName(), surface_name);
+            removed_count++;
+          }
+        }
+      }
+    }
+
+    ROS_INFO("Added %lu new observations and marked %lu as removed.", new_observation_count, removed_count);
   }
 }

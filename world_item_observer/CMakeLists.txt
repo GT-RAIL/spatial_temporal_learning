@@ -5,6 +5,7 @@ project(world_item_observer)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  graspdb
   rail_manipulation_msgs
   roscpp
   tf2
