@@ -1,6 +1,6 @@
 <package>
   <name>worldlib</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>C++ Library for World State Learning Methods</description>
 
   <author email="rctoris@wpi.edu">Russell Toris</author>
