@@ -238,7 +238,7 @@ public:
    * \param removed_observed The time the Item was observed removed (defaults to now).
    */
   void markObservationsAsRemoved(const world::Item &item, const world::Surface &surface,
-      const ros::Time &removed_observed = ros::Time::now()) const;
+      const ros::Time &removed_observed = ros::Time::now());
 
   /*!
    * \brief Mark the given Item on the given Surface as being removed.
@@ -252,7 +252,7 @@ public:
    * \param removed_observed The time the Item was observed removed (defaults to now).
    */
   void markObservationsAsRemoved(const std::string &item_name, const std::string &surface_name,
-      const ros::Time &removed_observed = ros::Time::now()) const;
+      const ros::Time &removed_observed = ros::Time::now());
 
   /*!
    * \brief Get a list of unique surface names.
@@ -289,7 +289,7 @@ public:
 
 private:
   /*! Random number generator. */
-  //boost::mt19937 random_;
+  boost::mt19937 random_;
 
   /*!
    * \brief Create the spatial world table (sws).

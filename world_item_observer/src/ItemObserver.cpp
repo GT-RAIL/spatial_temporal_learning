@@ -87,22 +87,23 @@ void ItemObserver::recognizedObjectsCallback(const rail_manipulation_msgs::Segme
     for (size_t i = 0; i < objects->objects.size(); i++)
     {
       const rail_manipulation_msgs::SegmentedObject &o = objects->objects[i];
-      if (o.recognized)
-      {
-        // transform the centroid to the fixed frame (shift down the Z)
-        worldlib::geometry::Position offset(o.centroid.x, o.centroid.y, o.centroid.z - (o.height / 2.0));
-        const worldlib::geometry::Pose centroid(offset);
-        const string &frame_id = o.point_cloud.header.frame_id;
-        const worldlib::geometry::Pose p_centroid_world = this->transformToWorld(centroid, frame_id);
+      // transform the centroid to the fixed frame (shift down the Z)
+      const worldlib::geometry::Position offset(o.centroid.x, o.centroid.y, o.centroid.z - (o.height / 2.0));
+      const worldlib::geometry::Pose centroid(offset, worldlib::geometry::Orientation(o.orientation));
+      const string &frame_id = o.point_cloud.header.frame_id;
+      const worldlib::geometry::Pose p_centroid_world = this->transformToWorld(centroid, frame_id);
 
-        // check if it is on a surface
-        size_t room_i, surface_i, placement_surface_i;
-        if (world_.findPlacementSurface(p_centroid_world.getPosition(), room_i, surface_i, placement_surface_i))
+      // check if it is on a surface
+      size_t room_i, surface_i, placement_surface_i;
+      if (world_.findPlacementSurface(p_centroid_world.getPosition(), room_i, surface_i, placement_surface_i))
+      {
+        const worldlib::world::Room &room = world_.getRoom(room_i);
+        const worldlib::world::Surface &surface = room.getSurface(surface_i);
+        // check if it is recognized, otherwise just mark the surface as being seen
+        if (o.recognized)
         {
           // determine the position of the item on the surface
-          const worldlib::world::Room &room = world_.getRoom(room_i);
           const worldlib::geometry::Pose p_centroid_room = room.fromParentFrame(p_centroid_world);
-          const worldlib::world::Surface &surface = room.getSurface(surface_i);
           const worldlib::geometry::Pose p_centroid_surface = surface.fromParentFrame(p_centroid_room);
 
           // create and store the Observation
@@ -110,6 +111,9 @@ void ItemObserver::recognizedObjectsCallback(const rail_manipulation_msgs::Segme
           spatial_world_client_->addObservation(item, surface, p_centroid_surface);
           new_observation_count++;
           seen[surface.getName()].push_back(item.getName());
+        } else
+        {
+          seen[surface.getName()].push_back("");
         }
       }
     }
@@ -117,7 +121,6 @@ void ItemObserver::recognizedObjectsCallback(const rail_manipulation_msgs::Segme
     // special case -- if nothing was seen, we should mark the closest surface as being empty
     if (seen.empty())
     {
-      // TODO, check orientation?
       const worldlib::geometry::Pose p_robot_world = this->transformToWorld(worldlib::geometry::Pose(), base_frame_id_);
       size_t room_i, surface_i;
       world_.findClosestSurface(p_robot_world.getPosition(), room_i, surface_i);

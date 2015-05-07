@@ -23,8 +23,6 @@ using namespace rail::spatial_temporal_learning::worldlib::model;
 using namespace rail::spatial_temporal_learning::worldlib::remote;
 using namespace rail::spatial_temporal_learning::worldlib::world;
 
-static const boost::mt19937 BOOST_RANDOM;
-
 SpatialWorldClient::SpatialWorldClient(const SpatialWorldClient &client) : SqlClient(client)
 {
 }
@@ -255,13 +253,13 @@ bool SpatialWorldClient::itemObservedOnSurface(const string &item_name, const st
 }
 
 void SpatialWorldClient::markObservationsAsRemoved(const Item &item, const Surface &surface,
-    const ros::Time &removed_observed) const
+    const ros::Time &removed_observed)
 {
   this->markObservationsAsRemoved(item.getName(), surface.getName(), removed_observed);
 }
 
 void SpatialWorldClient::markObservationsAsRemoved(const string &item_name, const string &surface_name,
-    const ros::Time &removed_observed) const
+    const ros::Time &removed_observed)
 {
   if (this->connected())
   {
@@ -290,18 +288,15 @@ void SpatialWorldClient::markObservationsAsRemoved(const string &item_name, cons
       double sigma = (delta - mu) / 3.0;
       // normal distribution
       boost::normal_distribution<> distribution(mu, sigma);
-      boost::variate_generator<boost::mt19937, boost::normal_distribution<> > generator(BOOST_RANDOM, distribution);
-      double test =  generator();
-      cout << test << endl;
-      cout << generator() << ", " << generator() << endl;
+      boost::variate_generator<boost::mt19937 &, boost::normal_distribution<> > generator(random_, distribution);
 
       // get the random number
-      double rand = max(0.0, min(delta, test));
+      double rand = max(0.0, min(delta, generator()));
 
       // set the estimated and observed time and update
       persistent.setRemovedObserved(removed_observed);
       persistent.setRemovedEstimate(latest.getTime() + ros::Duration(rand));
-      //this->updateObservation(persistent);
+      this->updateObservation(persistent);
     } else
     {
       ROS_WARN("Attempted to mark the %s on the %s as removed when it was not still on that surface.",
