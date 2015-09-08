@@ -189,7 +189,7 @@ void OfflineItemSearcher::runGeoLifeExperiment()
 
   // generate 20% of verification points
   vector<int> rand_verification;
-  int num_verifications = round(0.2 * verification_pool_size);
+  int num_verifications = round(0.5 * verification_pool_size);
   cout << "  Generating " << num_verifications << " random indices out of " << verification_pool_size
   << " for verification... " << flush;
   while (rand_verification.size() < num_verifications)
