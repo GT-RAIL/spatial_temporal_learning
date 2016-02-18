@@ -21,8 +21,18 @@ install:
   - mkdir -p /tmp/ws/src
   - ln -s `pwd` /tmp/ws/src/package
   - cd /tmp/ws/src
-  - git clone https://github.com/WPI-RAIL/rail_pick_and_place.git
-  - git clone https://github.com/WPI-RAIL/rail_manipulation_msgs.git
+  - git clone https://github.com/GT-RAIL/spatial_temporal_learning.git
+  - git clone https://github.com/GT-RAIL/python_ethernet_rmp.git
+  - git clone https://github.com/GT-RAIL/battery_monitor_rmp.git
+  - git clone https://github.com/GT-RAIL/ros_ethernet_rmp.git
+  - git clone https://github.com/GT-RAIL/rmp_msgs.git
+  - git clone https://github.com/GT-RAIL/m4atx_battery_monitor.git
+  - git clone https://github.com/RIVeR-Lab/wpi_jaco.git
+  - git clone https://github.com/GT-RAIL/rail_manipulation_msgs.git
+  - git clone https://github.com/GT-RAIL/rail_segmentation.git
+  - git clone https://github.com/GT-RAIL/rail_pick_and_place.git
+  - git clone https://github.com/GT-RAIL/carl_safety.git
+  - git clone https://github.com/GT-RAIL/carl_moveit.git
   - mv rail_pick_and_place/graspdb rail_pick_and_place/rail_pick_and_place_msgs .
   - rm -rf rail_pick_and_place
   - cd ../
