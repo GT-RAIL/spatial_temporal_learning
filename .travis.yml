@@ -36,8 +36,11 @@ install:
   - git clone https://github.com/sniekum/ar_track_alvar_msgs.git
   - git clone https://github.com/ros-perception/perception_pcl.git -b indigo-devel
   - git clone https://github.com/ros/common_msgs.git -b indigo-devel
+  - mv geometry_experimental/tf2_sensor_msgs .
   - rm -rf geometry_experimental
-  - mv rail_pick_and_place/graspdb rail_pick_and_place/rail_pick_and_place_msgs .
+  - mv rail_pick_and_place/graspdb .
+  - mv rail_pick_and_place/rail_pick_and_place_msgs .
+  - mv rail_pick_and_place/rail_recognition .
   - rm -rf rail_pick_and_place
   - cd ../
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
