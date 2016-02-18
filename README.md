@@ -1,4 +1,4 @@
-spatial_temporal_learning [![Build Status](https://api.travis-ci.org/WPI-RAIL/spatial_temporal_learning.png)](https://travis-ci.org/WPI-RAIL/spatial_temporal_learning)
+spatial_temporal_learning [![Build Status](https://api.travis-ci.org/GT-RAIL/spatial_temporal_learning.png)](https://travis-ci.org/GT-RAIL/spatial_temporal_learning)
 =========================
 
 #### Learning Methods Based on Spatial and Temporal Data
