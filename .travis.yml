@@ -32,6 +32,7 @@ install:
   - git clone https://github.com/GT-RAIL/rail_pick_and_place.git -b develop-no-opencv-nonfree
   - git clone https://github.com/GT-RAIL/carl_safety.git
   - git clone https://github.com/GT-RAIL/carl_moveit.git
+  - git clone https://github.com/GT-RAIL/carl_bot.git
   - mv rail_pick_and_place/graspdb rail_pick_and_place/rail_pick_and_place_msgs .
   - rm -rf rail_pick_and_place
   - cd ../
