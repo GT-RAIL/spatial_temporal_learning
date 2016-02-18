@@ -21,7 +21,6 @@ install:
   - mkdir -p /tmp/ws/src
   - ln -s `pwd` /tmp/ws/src/package
   - cd /tmp/ws/src
-  - git clone https://github.com/GT-RAIL/spatial_temporal_learning.git
   - git clone https://github.com/GT-RAIL/python_ethernet_rmp.git
   - git clone https://github.com/GT-RAIL/battery_monitor_rmp.git
   - git clone https://github.com/GT-RAIL/ros_ethernet_rmp.git
